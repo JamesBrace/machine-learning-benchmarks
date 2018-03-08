@@ -1,0 +1,35 @@
+{
+  "name": "machine-learning-benchmarks",
+  "version": "1.0.0",
+  "description": "Benchmarking for representative machine learning algorithms to analyze state-of-art of browser neural networks",
+  "main": "index.js",
+  "scripts": {
+    "test": "test",
+    "run": ""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JamesBrace/machine-learning-benchmarks.git"
+  },
+  "keywords": [
+    "machine-learning",
+    "deeplearn",
+    "tensorflow",
+    "benchmarks"
+  ],
+  "author": "James Brace",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JamesBrace/machine-learning-benchmarks/issues"
+  },
+  "homepage": "https://github.com/JamesBrace/machine-learning-benchmarks#readme",
+  "dependencies": {
+    "chalk": "^2.3.2",
+    "deeplearn": "^0.5.1",
+    "ora": "^2.0.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1"
+  }
+}
