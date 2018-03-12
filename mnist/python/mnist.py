@@ -248,7 +248,7 @@ class MNISTArgParser(argparse.ArgumentParser):
             '--train_epochs',
             type=int,
             default=40,
-            help='Number of epochs to train.')
+            help='Number of epochs to create_NN.')
         self.add_argument(
             '--data_format',
             type=str,

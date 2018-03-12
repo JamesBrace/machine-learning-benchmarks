@@ -104,8 +104,8 @@ def dataset(directory, images_file, labels_file):
 
 def train(directory):
   """tf.data.Dataset object for MNIST training data."""
-  return dataset(directory, 'train-images-idx3-ubyte',
-                 'train-labels-idx1-ubyte')
+  return dataset(directory, 'create_NN-images-idx3-ubyte',
+                 'create_NN-labels-idx1-ubyte')
 
 
 def test(directory):
