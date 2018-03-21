@@ -1,17 +1,21 @@
 const log = console.log;
 
-/**
- * Size of training set
- * @type {number}
- */
-const training_size = 8000;
+/*****************************
+ *  CONSTANTS
+ ****************************/
 
+// Data set sizes
+const TRAINING_SIZE = 8000;
+const TEST_SIZE = 2000;
 
-/**
- * Size of test set
- * @type {number}
- */
-const test_size = 2000;
+// Hyper-parameters
+const LEARNING_RATE = .001;
+const BATCH_SIZE = 64;
+const TRAIN_STEPS = 1000;
+
+// Data constants.
+const IMAGE_SIZE = 28;
+const LABELS_SIZE = 10;
 
 
 class MNIST_Model {
@@ -21,10 +25,18 @@ class MNIST_Model {
         log("Backend: " + dl.getBackend());
         log(dl.memory());
 
+        // dl.setBackend('cpu');
 
-        log("Checkpoint: generating training set (size: " + training_size + ") and test set (size: " + test_size + ")");
-        let set = mnist.set(training_size, test_size);
+        /**
+         * Generate the training and test data
+         */
+        log("Checkpoint: generating training set (size: " + TRAINING_SIZE + ") and test set (size: " + TEST_SIZE + ")");
+        let set = mnist.set(TRAINING_SIZE, TEST_SIZE);
 
+        /**
+         * Assign the data to a class for better accessibility
+         * @type {{training: {images, labels, num_images}, test: {images, labels, num_images: number}}}
+         */
         this.data = {
             training: {
                 images: set.training.map(obj => obj.input),
@@ -38,6 +50,16 @@ class MNIST_Model {
             }
         };
 
+        const optimizer = dl.train.adam(LEARNING_RATE);
+
+        /**********************************
+        * VARIABLES WE WANT TO OPTIMIZE
+        **********************************/
+
+        /**
+         * Generate initial weights via random normal distribution
+         * @type {{conv: {first: *, second: *}, full: {first: *, second: *}}}
+         */
         this.weights = {
             conv: {
                 first: MNIST_Model.weight_variable([5, 5, 1, 32]),
@@ -49,6 +71,10 @@ class MNIST_Model {
             }
         };
 
+        /**
+         * Initialize bias variable with scalar 0.1
+         * @type {{conv: {first: *, second: *}, full: {first: *, second: *}}}
+         */
         this.biases = {
             conv: {
                 first: MNIST_Model.bias_variable([32]),
@@ -60,8 +86,10 @@ class MNIST_Model {
             }
         };
 
-        this.optimizer = dl.train.adam(0.0001);
 
+        /**
+         * Train the model and then evaluate the model on the test set
+         */
         this.train(() => {
           log('Successfully completed training.');
           log(`Error on test set after training: ${this.test(this.data.test.images, this.data.test.labels)}`)
@@ -70,9 +98,13 @@ class MNIST_Model {
 
     async train(done){
         let current_loss = 0;
-        for (let iter = 0; iter < 100; iter++) {
+        for (let iter = 0; iter < 1000; iter++) {
+
+            // On each iteration shuffle the data
+            // TODO: Implement mini-batch
             let {images, labels} = MNIST_Model.getRandom(this.data.training.images, this.data.training.labels);
 
+            // Create tensors for images and labels to feed to optimizer
             images = dl.tensor(images);
             labels = dl.tensor(labels);
 
@@ -100,44 +132,50 @@ class MNIST_Model {
 
     /**
      * Given an input of images, predict the label
+     * Performs eager execution
      * @param input
      * @return {*}
      */
     predict(input){
         return dl.tidy(() => {
             // Input layer
-            let x = input.reshape([-1, 28, 28, 1]);
+            let x = input.reshape([-1, IMAGE_SIZE, IMAGE_SIZE, 1]);
             log("Finished input reshaping");
+
+            const strides = 2;
+            const pad = 0;
+
+            // Conv 1
+            const layer1 = dl.tidy(() => {
+                return x.conv2d(conv1Weights, 1, 'same')
+                    .relu()
+                    .maxPool([2, 2], strides, pad);
+            });
+
 
             // Convolution layer #1
             let conv_1 =this.generate_first_conv_layer(x);
             log("Finished generating first conv layer");
-            conv_1.print();
 
             // Pool layer #1
             const pool_1 = dl.maxPool(conv_1, [2, 2], 2, 'same');
             log("Finished generating first pool layer");
-            pool_1.print();
 
             // Convolution layer #2
             let conv_2 = this.generate_second_conv_layer(pool_1);
             log("Finished generating second conv layer");
-            conv_2.print();
 
             // Pool layer #2
             const pool_2 = dl.maxPool(conv_2, [2, 2], 2, 'same');
             log("Finished generating second pool layer");
-            pool_2.print();
 
             // Dense layer
             const full_1 = this.generate_fully_connected_layer(pool_2);
             log("Finished first dense layer");
-            full_1.print();
 
             // Dropout
             const drop = MNIST_Model.dropout(full_1, 0.4);
             log("Finished dropout");
-            drop.print();
 
             // Map the 1024 features to 10 classes, one for each digit
             const weight_fc2 = this.weights.full.second;
@@ -155,6 +193,9 @@ class MNIST_Model {
      * @return {*|void}
      */
     static loss(labels, logits){
+
+        console.log(labels);
+        console.log(logits);
         // Calculate cross entropy
         labels.reshape([-1, 10]);
         logits.reshape([-1, 10]);
@@ -181,9 +222,10 @@ class MNIST_Model {
      * @return {*}
      */
     generate_first_conv_layer(x){
+
+        let weight_conv1 = this.weights.conv.first;
+        let bias_conv1 = this.biases.conv.first;
         return dl.tidy(() => {
-            let weight_conv1 = this.weights.conv.first;
-            let bias_conv1 = this.biases.conv.first;
             const conv_1 = dl.conv2d(x, weight_conv1, 1, 'same').add(bias_conv1);
             return conv_1.relu();
         });
@@ -195,9 +237,10 @@ class MNIST_Model {
      * @return {*}
      */
     generate_second_conv_layer(pool_1){
+        let weight_conv2 = this.weights.conv.second;
+        let bias_conv2 = this.biases.conv.second;
+
         return dl.tidy(() => {
-            let weight_conv2 = this.weights.conv.second;
-            let bias_conv2 = this.biases.conv.second;
             const conv_2 = dl.conv2d(pool_1, weight_conv2, 1, 'same').add(bias_conv2);
             return conv_2.relu();
         });
@@ -209,9 +252,9 @@ class MNIST_Model {
      * @return {*}
      */
      generate_fully_connected_layer(pool_2){
-         return dl.tidy(() => {
-            let weight_full1 = this.weights.full.first;
-            let bias_full1 = this.biases.full.first;
+        let weight_full1 = this.weights.full.first;
+        let bias_full1 = this.biases.full.first;
+        return dl.tidy(() => {
             const pool2_flat = dl.reshape(pool_2, [-1, 7 * 7 * 64]);
             const full = dl.matMul(pool2_flat,weight_full1).add(bias_full1);
             return full.relu()
@@ -249,10 +292,8 @@ class MNIST_Model {
      * @param shape
      */
     static weight_variable(shape){
-        return dl.tidy(() => {
-            let initial = dl.randomNormal(shape);
-            return dl.variable(initial)
-        });
+        let initial = dl.randomNormal(shape, 0, 0.1);
+        return dl.variable(initial)
     }
 
     /**
@@ -260,10 +301,8 @@ class MNIST_Model {
      * @param shape
      */
     static bias_variable(shape){
-        return dl.tidy(() => {
-            let initial = dl.fill(shape, 0.1);
-            return dl.variable(initial)
-        });
+        let initial = dl.fill(shape, 0.1);
+        return dl.variable(initial)
     }
 
     /**
