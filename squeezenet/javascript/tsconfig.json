@@ -6,7 +6,7 @@
   "include": [
     "index.ts",
     "squeezenet.ts",
-    "../util.ts"
+    "util.ts"
   ],
   "exclude": [
     "node_modules/",

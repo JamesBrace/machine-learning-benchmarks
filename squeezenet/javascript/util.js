@@ -6,7 +6,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licnses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,5 +16,20 @@
  * =============================================================================
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-var yolo_mobilenet_1 = require("./yolo_mobilenet");
-exports.YoloMobileNetDetection = yolo_mobilenet_1.YoloMobileNetDetection;
+function topK(values, k) {
+    var valuesAndIndices = [];
+    for (var i = 0; i < values.length; i++) {
+        valuesAndIndices.push({ value: values[i], index: i });
+    }
+    valuesAndIndices.sort(function (a, b) {
+        return b.value - a.value;
+    });
+    var topkValues = new Float32Array(k);
+    var topkIndices = new Int32Array(k);
+    for (var i = 0; i < k; i++) {
+        topkValues[i] = valuesAndIndices[i].value;
+        topkIndices[i] = valuesAndIndices[i].index;
+    }
+    return { values: topkValues, indices: topkIndices };
+}
+exports.topK = topK;

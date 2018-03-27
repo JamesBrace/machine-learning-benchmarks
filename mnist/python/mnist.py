@@ -27,14 +27,8 @@ import dataset
 
 class Model(tf.keras.Model):
 
-    """Model to recognize digits in the MNIST dataset.
-
-    Network structure is equivalent to:
-    https://github.com/tensorflow/tensorflow/blob/r1.5/tensorflow/examples/tutorials/mnist/mnist_deep.py
-    and
-    https://github.com/tensorflow/models/blob/master/tutorials/image/mnist/convolutional.py
-
-    But written as a tf.keras.Model using the tf.layers API.
+    """
+    Model to recognize digits in the MNIST dataset.
     """
 
     def __init__(self, data_format):
@@ -179,6 +173,7 @@ def main(unused_argv):
     if data_format is None:
         data_format = ('channels_first'
                        if tf.test.is_built_with_cuda() else 'channels_last')
+
     mnist_classifier = tf.estimator.Estimator(
         model_fn=model_function,
         model_dir=FLAGS.model_dir,

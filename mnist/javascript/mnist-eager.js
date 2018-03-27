@@ -53,7 +53,7 @@ function loss(labels, logits) {
 }
 
 // Our actual model
-function model(inputXs) {
+function model(inputXs, training) {
     const xs = inputXs.as4D(-1, IMAGE_SIZE, IMAGE_SIZE, 1);
 
     const strides = 2;
@@ -82,24 +82,24 @@ function model(inputXs) {
             .relu();
     });
 
-    // Dropout
-    const dropout = dl.tidy(() => {
-        if (keep_prob > 1 || keep_prob < 0) {
-            throw "Keep probability must be between 0 and 1"
-        }
+    if(training){
+        // Dropout
+        const dropout = dl.tidy(() => {
+            if (keep_prob > 1 || keep_prob < 0) {
+                throw "Keep probability must be between 0 and 1"
+            }
 
-        if (keep_prob === 1) return full;
+            if (keep_prob === 1) return full;
 
-        const uniform_tensor = dl.randomUniform(full.shape);
+            const uniform_tensor = dl.randomUniform(full.shape);
+            const prob_tensor = dl.fill(full.shape, keep_prob);
+            const random_tensor = dl.add(uniform_tensor, prob_tensor);
+            const floor_tensor = dl.floor(random_tensor);
 
-        const prob_tensor = dl.fill(full.shape, keep_prob);
+            return full.div(dl.scalar(keep_prob)).mul(floor_tensor)
+        });
+    }
 
-        const random_tensor = dl.add(uniform_tensor, prob_tensor);
-
-        const floor_tensor = dl.floor(random_tensor);
-
-        return full.div(dl.scalar(keep_prob)).mul(floor_tensor)
-    });
 
 
     return dl.matMul(dropout, fullyConnectedWeights2).add(fullyConnectedBias2);
@@ -122,7 +122,7 @@ async function train() {
   for (let i = 0; i < TRAIN_STEPS; i++) {
     const cost = optimizer.minimize(() => {
       const batch = nextTrainBatch();
-      return loss(batch.labels, model(batch.images));
+      return loss(batch.labels, model(batch.images, true));
     }, returnCost);
 
     log(`loss[${i}]: ${cost.dataSync()}`);
@@ -135,7 +135,7 @@ async function train() {
 function predict(x){
   const pred = dl.tidy(() => {
     const axis = 1;
-    return model(x).argMax(axis);
+    return model(x, false).argMax(axis);
   });
   return Array.from(pred.dataSync());
 }
