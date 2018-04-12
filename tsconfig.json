@@ -19,6 +19,7 @@
     "allowUnreachableCode": false,
     "experimentalDecorators": true
   },
+  "types": [],
   "include": [
     "layer-benchmarks/",
     "squeezenet/"

@@ -1,23 +1,33 @@
 {
   "name": "deeplearn-squeezenet",
   "version": "0.2.0",
-  "description": "SqueezeNet model in deeplearn.js",
+  "description": "Pretrained SqueezeNet model in deeplearn.js",
   "main": "dist/squeezenet/index.js",
   "unpkg": "dist/bundle.js",
   "types": "dist/squeezenet/index.d.ts",
-  "scripts": {
-    "build": "npm install && chmod 777 download-cifar.sh && ./download-cifar.sh && mkdir -p dist && tsc --sourceMap false && browserify -g browserify-shim --standalone squeezenet index.ts -p [tsify] -o dist/bundle.js",
-    "lint": "tslint -p . -t verbose"
+  "peerDependencies": {
+    "deeplearn": "0.5.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PAIR-code/deeplearnjs.git"
   },
   "devDependencies": {
+    "@types/node": "~9.6.0",
+    "@types/seedrandom": "~2.4.27",
     "browserify": "~14.5.0",
     "browserify-shim": "~3.8.14",
-    "deeplearn": "next",
+    "deeplearn": "0.5.0",
     "tsify": "~3.0.3",
     "tslint": "~5.8.0",
     "typescript": "2.7.2",
-    "uglifyjs": "~2.4.11",
+    "uglify-js": "~3.0.28",
     "watchify": "~3.9.0"
+  },
+  "scripts": {
+    "build": "tsc --sourceMap false && browserify -g browserify-shim --standalone squeezenet index.ts -p [tsify] -o dist/bundle.js",
+    "lint": "tslint -p . -t verbose",
+    "publish-npm": "yarn build && yarn publish"
   },
   "browserify-shim": {
     "deeplearn": "global:dl"
