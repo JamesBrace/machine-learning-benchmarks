@@ -1,7 +1,7 @@
 // tslint:disable-next-line:max-line-length
 import * as dl from 'deeplearn';
 // If you need to prefix the file locations with custom destination
-const CIFAR10 = require("./cifar10")({dataPath: "../data"});
+const CIFAR10 = require("./cifar10")({dataPath: "./data"});
 import {Tensor1D, Tensor3D, Tensor4D} from 'deeplearn';
 
 /*****************np
