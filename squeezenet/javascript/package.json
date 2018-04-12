@@ -5,12 +5,19 @@
   "main": "dist/squeezenet/index.js",
   "unpkg": "dist/bundle.js",
   "types": "dist/squeezenet/index.d.ts",
-  "peerDependencies": {
-    "deeplearn": "0.5.0"
-  },
   "scripts": {
-    "build": "download-cifar.sh && mkdirp dist && tsc --sourceMap false && browserify -g browserify-shim --standalone squeezenet index.ts -p [tsify] -o dist/bundle.js",
+    "build": "npm install && chmod 777 download-cifar.sh && ./download-cifar.sh && mkdir -p dist && tsc --sourceMap false && browserify -g browserify-shim --standalone squeezenet index.ts -p [tsify] -o dist/bundle.js",
     "lint": "tslint -p . -t verbose"
+  },
+  "devDependencies": {
+    "browserify": "~14.5.0",
+    "browserify-shim": "~3.8.14",
+    "deeplearn": "next",
+    "tsify": "~3.0.3",
+    "tslint": "~5.8.0",
+    "typescript": "2.7.2",
+    "uglifyjs": "~2.4.11",
+    "watchify": "~3.9.0"
   },
   "browserify-shim": {
     "deeplearn": "global:dl"

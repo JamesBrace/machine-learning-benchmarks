@@ -54,9 +54,7 @@
     "chart.js": "~2.7.1",
     "cifar10": "^1.0.2",
     "deeplearn": "next",
-    "deeplearn-knn-image-classifier": "~0.3.0",
     "deeplearn-legacy-loader": "0.0.1",
-    "deeplearn-squeezenet": "~0.2.0",
     "tslint": "~5.8.0",
     "vue": "~2.5.9"
   },

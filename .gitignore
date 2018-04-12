@@ -158,3 +158,4 @@ venv.bak/
 
 node_modules/
 .idea/
+data/
