@@ -9,7 +9,6 @@ import {Tensor1D, Tensor3D, Tensor4D} from 'deeplearn';
  ****************/
 const log = console.log;
 
-const GOOGLE_CLOUD_STORAGE_DIR = '';
 
 // Hyper-parameters
 const LEARNING_RATE = .001;
@@ -17,8 +16,6 @@ const BATCH_SIZE = 64;
 const TRAIN_STEPS = 1000;
 
 // Data constants.
-const IMAGE_SIZE = 224 * 224 * 3;
-const LABELS_SIZE = 1000;
 const optimizer = dl.train.adam(LEARNING_RATE);
 
 const TRAINING_SIZE = 8000;
@@ -139,19 +136,8 @@ const conv2Bias = dl.variable(dl.zeros([1, 1, 3,  1000]));
 
 
 export class SqueezeNet {
-    private variables: {[varName: string]: dl.Tensor};
     private preprocessOffset = dl.tensor1d([103.939, 116.779, 123.68]);
 
-
-
-
-    /**
-    * Loads necessary variables for SqueezeNet.
-    */
-    async load(): Promise<void> {
-        const checkpointLoader = new dl.CheckpointLoader(GOOGLE_CLOUD_STORAGE_DIR + 'squeezenet1_1/');
-        this.variables = await checkpointLoader.getAllVariables();
-    }
 
     /**
     * Infer through SqueezeNet, assumes variables have been loaded. This does
@@ -393,14 +379,6 @@ export class SqueezeNet {
                 logits: dl.avgPool(conv10, conv10.shape[0], 1, 0).as1D() as Tensor1D,
             };
         });
-    }
-
-    dispose() {
-        this.preprocessOffset.dispose();
-
-        for (const varName in this.variables) {
-            this.variables[varName].dispose();
-        }
     }
 
     // Train the model.
