@@ -15,4 +15,4 @@
  * =============================================================================
  */
 
-export {ActivationName, SqueezeNet} from './squeezenet';
+export {SqueezeNet} from './squeezenet';

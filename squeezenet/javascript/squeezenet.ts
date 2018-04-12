@@ -1,12 +1,13 @@
 // tslint:disable-next-line:max-line-length
 import * as dl from 'deeplearn';
 import {Tensor1D, Tensor3D, Tensor4D} from 'deeplearn';
-import * as model_util from './util';
 
 /*****************np
  * CONSTANTS
  ****************/
 const log = console.log;
+
+const GOOGLE_CLOUD_STORAGE_DIR = '';
 
 // Hyper-parameters
 const LEARNING_RATE = .001;
@@ -17,6 +18,10 @@ const TRAIN_STEPS = 1000;
 const IMAGE_SIZE = 224 * 224 * 3;
 const LABELS_SIZE = 1000;
 const optimizer = dl.train.adam(LEARNING_RATE);
+
+const TRAINING_SIZE = 8000;
+const TEST_SIZE = 2000;
+const set = mnist.set(TRAINING_SIZE, TEST_SIZE);
 
 const data = {
     training: {
@@ -131,10 +136,11 @@ const conv2Weights = dl.variable(dl.randomNormal([1, 1, 3,  1000], 0, 0.1));
 const conv2Bias = dl.variable(dl.zeros([1, 1, 3,  1000]));
 
 
-
 export class SqueezeNet {
     private variables: {[varName: string]: dl.Tensor};
     private preprocessOffset = dl.tensor1d([103.939, 116.779, 123.68]);
+
+
 
 
     /**
@@ -154,7 +160,7 @@ export class SqueezeNet {
     * @return The pre-softmax logits.
     */
     predict(input: Tensor3D): Tensor1D {
-        return this.predictWithActivation(input).logits;
+        return this.model(input, false).logits;
     }
 
     /**
@@ -168,7 +174,6 @@ export class SqueezeNet {
     */
     model(input: Tensor3D, training: boolean): {logits: Tensor1D} {
         return dl.tidy(() => {
-            let activation: Tensor3D;
 
             // Preprocess the input.
             const preprocessedInput = dl.sub(input.asType('float32'), this.preprocessOffset) as Tensor3D;
@@ -388,36 +393,6 @@ export class SqueezeNet {
         });
     }
 
-
-  /**
-   * Get the topK classes for pre-softmax logits. Returns a map of className
-   * to softmax normalized probability.
-   *
-   * @param logits Pre-softmax logits array.
-   * @param topK How many top classes to return.
-   */
-    async getTopKClasses(logits: Tensor1D, topK: number): Promise<{[className: string]: number}> {
-
-        const predictions = dl.tidy(() => {
-            return dl.softmax(logits).asType('float32');
-        });
-
-        const topk = model_util.topK(await predictions.data() as Float32Array, topK);
-
-        predictions.dispose();
-
-        const topkIndices = topk.indices;
-        const topkValues = topk.values;
-
-        const topClassesToProbability: {[className: string]: number} = {};
-
-        for (let i = 0; i < topkIndices.length; i++) {
-            topClassesToProbability[IMAGENET_CLASSES[topkIndices[i]]] = topkValues[i];
-        }
-
-        return topClassesToProbability;
-    }
-
     dispose() {
         this.preprocessOffset.dispose();
 
@@ -462,7 +437,15 @@ export class SqueezeNet {
      * @param logits
      * @return Tensor
      */
-    static loss(labels, logits) {
+    static loss(labels: Tensor1D, logits: Tensor1D) {
         return dl.losses.softmaxCrossEntropy(labels, logits).mean();
     }
 }
+
+async function run_squeeze(): Promise<void> {
+    let model = new SqueezeNet();
+    await model.train();
+  // await test();
+}
+
+run_squeeze();

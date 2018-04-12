@@ -149,16 +149,16 @@ function classesFromLabel(y) {
   return Array.from(pred.dataSync());
 }
 
-// async function test() {
-//   const testExamples = 50;
-//   const batch = nextTestBatch(testExamples);
-//   const predictions = predict(batch.xs);
-//   const labels = classesFromLabel(batch.labels);
-// }
+async function test() {
+    const testExamples = 50;
+    const batch = nextTestBatch(testExamples);
+    const predictions = predict(batch.xs);
+    const labels = classesFromLabel(batch.labels);
+}
 
 async function run_mnist() {
   await train();
-  // test();
+  // await test();
 }
 
 run_mnist();

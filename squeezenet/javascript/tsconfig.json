@@ -1,12 +1,11 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "../node_modules/deeplearn-squeezenet/dist"
+    "outDir": "./dist"
   },
   "include": [
     "index.ts",
-    "squeezenet.ts",
-    "util.ts"
+    "squeezenet.ts"
   ],
   "exclude": [
     "node_modules/",
