@@ -98,11 +98,12 @@ function model(inputXs, training) {
 
             return full.div(dl.scalar(keep_prob)).mul(floor_tensor)
         });
+
+        return dl.matMul(dropout || full , fullyConnectedWeights2).add(fullyConnectedBias2);
+
     }
 
-
-
-    return dl.matMul(dropout, fullyConnectedWeights2).add(fullyConnectedBias2);
+    return dl.matMul(full , fullyConnectedWeights2).add(fullyConnectedBias2);
 }
 
 function nextTrainBatch(){
