@@ -38,15 +38,9 @@ export class BenchmarkRun {
   name: string;
   benchmarkTest: BenchmarkTest;
 
-  chartData: ChartData[];
   constructor(name: string, benchmarkTest: BenchmarkTest) {
     this.name = name;
     this.benchmarkTest = benchmarkTest;
-    this.chartData = [];
-  }
-
-  clearChartData() {
-    this.chartData = [];
   }
 }
 

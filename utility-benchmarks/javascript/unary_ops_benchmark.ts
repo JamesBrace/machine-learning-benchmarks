@@ -33,7 +33,7 @@ function getUnaryOp(option: string) {
     case 'floor':
       return (x: dl.Tensor) => x.floor();
     case 'log1p':
-      return (x: dl.Tensor) => x.log1p();
+      return (x: dl.Tensor) => x.log();
     case 'sqrt':
       return (x: dl.Tensor) => x.sqrt();
     case 'square':
@@ -49,7 +49,6 @@ function getUnaryOp(option: string) {
     case 'leakyRelu':
       return (x: dl.Tensor) => x.leakyRelu();
     case 'prelu':
-      // TODO: Configurable from UI
       const alpha = dl.scalar(0.1);
       return (x: dl.Tensor) => x.prelu(alpha);
     case 'sigmoid':
