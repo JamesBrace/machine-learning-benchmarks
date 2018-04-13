@@ -23,8 +23,10 @@
     "watchify": "^3.11.0"
   },
   "scripts": {
-    "build": "tsc --sourceMap false && browserify -g browserify-shim --standalone squeezenet index.ts -p [tsify] -o dist/bundle.js",
-    "lint": "tslint -p . -t verbose"
+    "build": "./download-cifar.sh && tsc --sourceMap false && browserify -g browserify-shim --standalone squeezenet index.ts -p [tsify] -o dist/bundle.js",
+    "lint": "tslint -p . -t verbose",
+    "run-server": "cd cifar-10 && node cifar10-server.js",
+    "deploy": "yarn build && yarn run-server"
   },
   "browserify-shim": {
     "deeplearn": "global:dl",

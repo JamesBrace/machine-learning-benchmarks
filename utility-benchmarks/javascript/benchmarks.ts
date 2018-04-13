@@ -1,4 +1,3 @@
-
 /**
  * @license
  * Copyright 2017 Google Inc. All Rights Reserved.
@@ -18,7 +17,7 @@
 import '../demo-header';
 import '../demo-footer';
 
-import {PolymerElement, PolymerHTMLElement} from './polymer-spec';
+import {PolymerElement, PolymerHTMLElement} from '../polymer-spec';
 import {BenchmarkRunGroup} from './benchmark';
 
 import {getRunGroups} from './math-benchmark-run-groups';
@@ -35,6 +34,7 @@ export class MathBenchmark extends MathBenchmarkPolymer {
   ready() {
     const groups = getRunGroups();
     // Set up the benchmarks UI.
+
     const benchmarks: BenchmarkRunGroup[] = [];
     this.stopMessages = [];
     groups.forEach(group => {

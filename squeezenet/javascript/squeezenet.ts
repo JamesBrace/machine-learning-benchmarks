@@ -1,6 +1,6 @@
 // // tslint:disable-next-line:max-line-length
 import * as dl from 'deeplearn';
-import {Scalar, Tensor1D, Tensor3D, Tensor4D} from 'deeplearn';
+import {Scalar, Tensor, Tensor1D, Tensor3D, Tensor4D} from 'deeplearn';
 
 /*****************np
  * CONSTANTS
@@ -13,20 +13,24 @@ const BATCH_SIZE = 64;
 const TRAIN_STEPS = 1000;
 
 // Data constants.
+
 const optimizer = dl.train.adam(LEARNING_RATE);
 
-const TRAINING_SIZE = 8000;
-const TEST_SIZE = 2000;
+// const TRAINING_SIZE = 8000;
+// const TEST_SIZE = 2000;
+const IMAGE_SIZE = 32;
 
 const CIFAR10 = (<any>window).CIFAR10 || {};
 
 let data = {training: {images: [], labels: [], num_images: 0}, test: {images: [], labels: [], num_images: 0}};
 
 async function loadData() {
-    await CIFAR10.set(TRAINING_SIZE, TEST_SIZE);
+    // await CIFAR10.set(TRAINING_SIZE, TEST_SIZE);
+    const training = await CIFAR10.training.get(10);
+    const test = await CIFAR10.test.get(10);
 
-    const training = await CIFAR10.training.get(8000);
-    const test = await CIFAR10.test.get(2000);
+    log(training);
+    log(test);
 
      data = {
         training: {
@@ -52,7 +56,7 @@ async function loadData() {
  ****************/
 // Conv 1 weights
 const conv1Weights = dl.variable(dl.randomNormal([7, 7, 3,  96], 0, 0.1));
-const conv1Bias = dl.variable(dl.zeros([7, 7, 3,  96]));
+const conv1Bias = dl.variable(dl.zeros([10,16,16,96]));
 
 // Fire 2 weights
 const fire2SqueezeWeights = dl.variable(dl.randomNormal([1, 1, 3, 16], 0, 0.1));
@@ -147,7 +151,7 @@ const conv2Bias = dl.variable(dl.zeros([1, 1, 3,  1000]));
 
 
 export class SqueezeNet {
-    private preprocessOffset = dl.tensor1d([103.939, 116.779, 123.68]);
+    // private preprocessOffset = dl.tensor1d([103.939, 116.779, 123.68]);
 
 
     /**
@@ -171,21 +175,33 @@ export class SqueezeNet {
     * @param training
     * @return A requested activation and the pre-softmax logits.
     */
-    model(input: Tensor3D, training: boolean): {logits: Tensor1D} {
+    model(input: Tensor, training: boolean): {logits: Tensor1D} {
         return dl.tidy(() => {
 
+            log(input);
+
+            log("Stage: preprocessing...");
+
             // Preprocess the input.
-            const preprocessedInput = dl.sub(input.asType('float32'), this.preprocessOffset) as Tensor3D;
+            // let preprocessed = dl.sub(input.asType('float32'), this.preprocessOffset) as Tensor3D;
+
+            // log(preprocessed);
+
+            let preprocessedInput = input.as4D(-1, IMAGE_SIZE, IMAGE_SIZE, 3);
+
+            log("Stage: Convolution 1...");
 
             /**
              * Convolution 1
              */
             const conv1relu = preprocessedInput
-                  .conv2d(conv1Weights as Tensor4D, 2, 0)
+                  .conv2d(conv1Weights as Tensor4D, 2, 'same')
                   .add(conv1Bias as Tensor1D)
-                  .relu() as Tensor3D;
+                  .relu() as Tensor4D;
 
-            const pool1 = conv1relu.maxPool(3, 2, 0);
+            const pool1 = conv1relu.maxPool(2, 2, 0);
+
+            log("Stage: Fire Module 1...");
 
             /**
              * Fire Module 2
@@ -193,7 +209,7 @@ export class SqueezeNet {
             const y2 = dl.tidy(() => {
                 return dl.conv2d(pool1, fire2SqueezeWeights as Tensor4D, 1, 0)
                     .add(fire2SqueezeBias)
-                    .relu() as Tensor3D;
+                    .relu() as Tensor4D;
             });
 
             const left2 = dl.tidy(() => {
@@ -208,7 +224,11 @@ export class SqueezeNet {
                     .relu();
             });
 
-            const f2 = left2.concat(right2, 2) as Tensor3D;
+            const f2 = left2.concat(right2, 2) as Tensor4D;
+
+
+            log("Stage: Fire Module 3...");
+
 
              /**
              * Fire Module 3
@@ -216,7 +236,7 @@ export class SqueezeNet {
             const y3 = dl.tidy(() => {
                 return dl.conv2d(f2, fire3SqueezeWeights as Tensor4D, 1, 0)
                     .add(fire3SqueezeBias)
-                    .relu() as Tensor3D;
+                    .relu() as Tensor4D;
             });
 
             const left3 = dl.tidy(() => {
@@ -232,9 +252,11 @@ export class SqueezeNet {
             });
 
             const pool2 = dl.tidy(() => {
-                const f3 = left3.concat(right3, 2) as Tensor3D;
+                const f3 = left3.concat(right3, 2) as Tensor4D;
                 return f3.maxPool(3, 2, 'valid');
             });
+
+            log("Stage: Fire Module 4...");
 
              /**
              * Fire Module 4
@@ -242,7 +264,7 @@ export class SqueezeNet {
             const y4 = dl.tidy(() => {
                 return dl.conv2d(pool2, fire4SqueezeWeights as Tensor4D, 1, 0)
                     .add(fire4SqueezeBias)
-                    .relu() as Tensor3D;
+                    .relu() as Tensor4D;
             });
 
             const left4 = dl.tidy(() => {
@@ -257,8 +279,9 @@ export class SqueezeNet {
                     .relu();
             });
 
-            const f4 = left4.concat(right4, 2) as Tensor3D;
+            const f4 = left4.concat(right4, 2) as Tensor4D;
 
+            log("Stage: Fire Module 5...");
 
             /**
              * Fire Module 5
@@ -266,7 +289,7 @@ export class SqueezeNet {
             const y5 = dl.tidy(() => {
                 return dl.conv2d(f4, fire5SqueezeWeights as Tensor4D, 1, 0)
                     .add(fire5SqueezeBias)
-                    .relu() as Tensor3D;
+                    .relu() as Tensor4D;
             });
 
             const left5 = dl.tidy(() => {
@@ -282,9 +305,13 @@ export class SqueezeNet {
             });
 
             const pool3 = dl.tidy(() => {
-                const f5 = left5.concat(right5, 2) as Tensor3D;
+                const f5 = left5.concat(right5, 2) as Tensor4D;
                 return f5.maxPool(3, 2, 0);
             });
+
+
+            log("Stage: Fire Module 6...");
+
 
             /**
              * Fire Module 6
@@ -292,7 +319,7 @@ export class SqueezeNet {
             const y6 = dl.tidy(() => {
                 return dl.conv2d(pool3, fire6SqueezeWeights as Tensor4D, 1, 0)
                     .add(fire6SqueezeBias)
-                    .relu() as Tensor3D;
+                    .relu() as Tensor4D;
             });
 
             const left6 = dl.tidy(() => {
@@ -307,7 +334,11 @@ export class SqueezeNet {
                     .relu();
             });
 
-            const f6 = left6.concat(right6, 2) as Tensor3D;
+            const f6 = left6.concat(right6, 2) as Tensor4D;
+
+
+            log("Stage: Fire Module 7...");
+
 
             /**
              * Fire Module 7
@@ -315,7 +346,7 @@ export class SqueezeNet {
             const y7 = dl.tidy(() => {
                 return dl.conv2d(f6, fire7SqueezeWeights as Tensor4D, 1, 0)
                     .add(fire7SqueezeBias)
-                    .relu() as Tensor3D;
+                    .relu() as Tensor4D;
             });
 
             const left7 = dl.tidy(() => {
@@ -330,7 +361,10 @@ export class SqueezeNet {
                     .relu();
             });
 
-            const f7 = left7.concat(right7, 2) as Tensor3D;
+            const f7 = left7.concat(right7, 2) as Tensor4D;
+
+
+            log("Stage: Fire Module 8...");
 
 
             /**
@@ -339,7 +373,7 @@ export class SqueezeNet {
             const y8 = dl.tidy(() => {
                 return dl.conv2d(f7, fire8SqueezeWeights as Tensor4D, 1, 0)
                     .add(fire8SqueezeBias)
-                    .relu() as Tensor3D;
+                    .relu() as Tensor4D;
             });
 
             const left8 = dl.tidy(() => {
@@ -356,13 +390,15 @@ export class SqueezeNet {
 
             const f8 = left8.concat(right8, 2) as Tensor3D;
 
+            log("Stage: Fire Module 9...");
+
             /**
              * Fire Module 9
              */
             const y9 = dl.tidy(() => {
                 return dl.conv2d(f8, fire9SqueezeWeights as Tensor4D, 1, 0)
                     .add(fire9SqueezeBias)
-                    .relu() as Tensor3D;
+                    .relu() as Tensor4D;
             });
 
             const left9 = dl.tidy(() => {
@@ -377,14 +413,16 @@ export class SqueezeNet {
                     .relu();
             });
 
-            const f9 = left9.concat(right9, 2) as Tensor3D;
+            const f9 = left9.concat(right9, 2) as Tensor4D;
+
+            log("Stage: Convolutional Layer 2...");
 
 
             /**
              * Convolutaional Layer 2
              */
             const conv10 = f9.conv2d(conv2Weights as Tensor4D, 1, 0)
-                .add(conv2Bias) as Tensor3D;
+                .add(conv2Bias) as Tensor4D;
 
             return {
                 logits: dl.avgPool(conv10, conv10.shape[0], 1, 0).as1D() as Tensor1D,
@@ -419,9 +457,11 @@ export class SqueezeNet {
                 return {img: img, label: data.training.labels[index]}
             });
 
+        log(mapped);
+
         const shuffled = mapped.sort(() => .5 - Math.random());// shuffle
-        return {images: dl.tensor3d(shuffled.map((obj:any) => obj.img).slice(0, BATCH_SIZE)),
-            labels: dl.tensor1d(shuffled.map((obj:any) => obj.label).slice(0, BATCH_SIZE))}
+        return {images: dl.tensor(shuffled.map((obj:any) => obj.img).slice(0, BATCH_SIZE)),
+            labels: dl.tensor(shuffled.map((obj:any) => obj.label).slice(0, BATCH_SIZE))}
     }
 
     /**
@@ -430,7 +470,7 @@ export class SqueezeNet {
      * @param logits
      * @return Tensor
      */
-    static loss(labels: Tensor1D, logits: Tensor1D): Scalar {
+    static loss(labels: Tensor, logits: Tensor1D): Scalar {
         return dl.losses.softmaxCrossEntropy(labels, logits).mean();
     }
 }

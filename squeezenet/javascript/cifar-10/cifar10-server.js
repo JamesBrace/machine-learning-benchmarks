@@ -34,9 +34,7 @@ http.createServer(function (request, response) {
                         break;
 
                     case 5:
-                        console.log("here");
                         dataCount = cifar10.set(jsonData.training, jsonData.test);
-
                         data = JSON.stringify({ dataCount: dataCount });
                         return _context.abrupt("break", 98);
 

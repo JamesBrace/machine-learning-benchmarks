@@ -30,9 +30,11 @@ var getData = function getData(type, count) {
         var outData = [];
         var itemsPerCategory = Math.floor(parseInt(count) / 10);
 
+
         CIFAR10.categories.forEach(function (category) {
 
             var sliceStart = Math.min(readIndexCounters[type][category] / 10, CIFAR10[category][type].length);
+
             var indecesToRead = indeces[type][category].slice(sliceStart, sliceStart + itemsPerCategory);
 
             if (indecesToRead.length < itemsPerCategory - 1) {
@@ -46,6 +48,7 @@ var getData = function getData(type, count) {
         });
 
         Promise.all(outData).then(function (resolved) {
+
             CIFAR10.categories.forEach(function (category) {
                 return readIndexCounters[type][category] += itemsPerCategory * 10;
             });
@@ -119,9 +122,9 @@ var CIFAR10 = function () {
     _createClass(CIFAR10, null, [{
         key: "set",
         value: function set() {
+
             var trainingSize = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 50000;
             var testSize = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 10000;
-
 
             trainingSize = Math.max(Math.floor(trainingSize / 10) * 10, 10);
             testSize = Math.max(Math.floor(testSize / 10) * 10, 10);
@@ -145,7 +148,6 @@ var CIFAR10 = function () {
         key: "reset",
         value: function reset() {
             var _this2 = this;
-
             this.categories.forEach(function (category) {
 
                 // Generate list of indeces for entire data set, either afresh, or appended to existing
@@ -160,6 +162,7 @@ var CIFAR10 = function () {
                 // Limit the indeces to the given .split() amount
                 _this2[category].training.length = _this2.training.length / 10;
                 _this2[category].test.length = _this2.test.length / 10;
+
             });
         }
     }]);
@@ -177,6 +180,7 @@ var Category = function () {
         this.output = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
         this.output[CIFAR10.categories.indexOf(label)] = 1;
         this.totalLength = fs.statSync(CIFAR10.dataPath + "/" + this.label + ".bin").size / 3071;
+
         this.length = this.totalLength;
 
         this.training = {
@@ -217,6 +221,7 @@ var Category = function () {
             return new Promise(function (resolve, reject) {
                 start = parseInt(start);
                 var data = [];
+
                 var readStream = fs.createReadStream(CIFAR10.dataPath + "/" + _this4.label + ".bin", {
                     start: start * 3071,
                     end: (parseInt(end) || start + 1) * 3071,
@@ -265,9 +270,11 @@ module.exports = function () {
         testing = _ref2$testing === undefined ? false : _ref2$testing;
 
     CIFAR10.dataPath = dataPath;
+
     CIFAR10.categories.forEach(function (category) {
         return CIFAR10[category] = new Category(category);
     });
+
     CIFAR10.set(50000, 10000);
 
     return testing ? {

@@ -1,3 +1,4 @@
+
 import * as dl from 'deeplearn';
 
 export async function warmupAndBenchmarkGPU(benchmark: () => dl.Tensor):
