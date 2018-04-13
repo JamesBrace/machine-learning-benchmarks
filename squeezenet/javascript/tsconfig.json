@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "noImplicitAny": true,
-    "sourceMap": true,
+    "noImplicitAny": false,
+    "sourceMap": false,
     "removeComments": true,
     "preserveConstEnums": true,
-    "declaration": true,
+    "declaration": false,
     "target": "es5",
     "lib": ["es2015", "dom"],
     "outDir": "./dist",
@@ -17,16 +17,16 @@
     "pretty": true,
     "noFallthroughCasesInSwitch": true,
     "allowUnreachableCode": false,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "types": []
   },
-  "types": [],
   "include": [
     "index.ts",
-    "squeezenet.ts"
+    "squeezenet.ts",
+    "../util.ts"
   ],
   "exclude": [
     "node_modules/",
-    "dist/",
-    "data/"
+    "dist/"
   ]
 }

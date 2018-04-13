@@ -53,6 +53,9 @@ var getData = function getData(type, count) {
                 return prev.concat(curr);
             }, []);
             shuffle(final);
+
+            console.log(final[0]);
+
             resolve(final);
         });
     });

@@ -1,14 +1,11 @@
-// tslint:disable-next-line:max-line-length
+// // tslint:disable-next-line:max-line-length
 import * as dl from 'deeplearn';
-// If you need to prefix the file locations with custom destination
-const CIFAR10 = require("./cifar10")({dataPath: "./data"});
-import {Tensor1D, Tensor3D, Tensor4D} from 'deeplearn';
+import {Scalar, Tensor1D, Tensor3D, Tensor4D} from 'deeplearn';
 
 /*****************np
  * CONSTANTS
  ****************/
 const log = console.log;
-
 
 // Hyper-parameters
 const LEARNING_RATE = .001;
@@ -20,20 +17,34 @@ const optimizer = dl.train.adam(LEARNING_RATE);
 
 const TRAINING_SIZE = 8000;
 const TEST_SIZE = 2000;
-const set = CIFAR10.set(TRAINING_SIZE, TEST_SIZE);
 
-const data = {
-    training: {
-        images: set.training.map(obj => obj.input),
-        labels: set.training.map(obj => obj.output),
-        num_images: set.training.length,
-    },
-    test: {
-        images: set.test.map(obj => obj.input),
-        labels: set.test.map(obj => obj.output),
-        num_images: set.test.length,
-    }
-};
+const CIFAR10 = (<any>window).CIFAR10 || {};
+
+let data = {training: {images: [], labels: [], num_images: 0}, test: {images: [], labels: [], num_images: 0}};
+
+async function loadData() {
+    await CIFAR10.set(TRAINING_SIZE, TEST_SIZE);
+
+    const training = await CIFAR10.training.get(8000);
+    const test = await CIFAR10.test.get(2000);
+
+     data = {
+        training: {
+            images: training.map((obj:any) => obj.input),
+            labels: training.map((obj:any) => obj.output),
+            num_images: training.length,
+        },
+        test: {
+            images: test.map((obj:any) => obj.input),
+            labels: test.map((obj:any) => obj.output),
+            num_images: test.length,
+        }
+    };
+
+
+    log(data.training.images[0]);
+    log(data.training.labels[0]);
+}
 
 
 /*****************
@@ -388,7 +399,9 @@ export class SqueezeNet {
         for (let i = 0; i < TRAIN_STEPS; i++) {
             const cost = optimizer.minimize(() => {
               const batch = this.nextTrainBatch();
-              return SqueezeNet.loss(batch.labels, this.model(batch.images, true));
+
+              log(`iteration [${i}]`);
+              return SqueezeNet.loss(batch.labels, this.model(batch.images, true).logits);
             }, returnCost);
 
             log(`loss[${i}]: ${cost.dataSync()}`);
@@ -402,13 +415,13 @@ export class SqueezeNet {
      * @return {{images: Tensor[]; labels: Tensor[]}}
      */
     nextTrainBatch(){
-        let mapped = data.training.images.map((img, index) => {
+        let mapped = data.training.images.map((img: any, index: number) => {
                 return {img: img, label: data.training.labels[index]}
             });
 
         const shuffled = mapped.sort(() => .5 - Math.random());// shuffle
-        return {images: dl.tensor(shuffled.map(obj => obj.img).slice(0, BATCH_SIZE)),
-            labels: dl.tensor(shuffled.map(obj => obj.label).slice(0, BATCH_SIZE))}
+        return {images: dl.tensor3d(shuffled.map((obj:any) => obj.img).slice(0, BATCH_SIZE)),
+            labels: dl.tensor1d(shuffled.map((obj:any) => obj.label).slice(0, BATCH_SIZE))}
     }
 
     /**
@@ -417,13 +430,17 @@ export class SqueezeNet {
      * @param logits
      * @return Tensor
      */
-    static loss(labels: Tensor1D, logits: Tensor1D) {
+    static loss(labels: Tensor1D, logits: Tensor1D): Scalar {
         return dl.losses.softmaxCrossEntropy(labels, logits).mean();
     }
 }
 
 async function run_squeeze(): Promise<void> {
+    log("loading data");
+    await loadData();
     let model = new SqueezeNet();
+
+    log("training!");
     await model.train();
   // await test();
 }
