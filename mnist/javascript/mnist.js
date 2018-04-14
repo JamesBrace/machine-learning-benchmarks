@@ -1,5 +1,12 @@
 const log = console.log;
 
+/**
+ * CHANGE BASED ON TEST CONDITIONS!
+ */
+// Either 'webgl' or 'cpu'
+const backend = 'webgl';
+dl.setBackend(backend);
+
 /*****************************
  *  CONSTANTS
  ****************************/
@@ -154,11 +161,12 @@ async function test() {
     const batch = nextTestBatch(testExamples);
     const predictions = predict(batch.xs);
     const labels = classesFromLabel(batch.labels);
+    log(loss(labels, predictions))
 }
 
 async function run_mnist() {
-  await train();
-  // await test();
+    await train();
+    // await test();
 }
 
 run_mnist();
