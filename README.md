@@ -1,24 +1,52 @@
-# TensorFlow Official Models
+# Machine Learning Benchmarks: Server vs Browser
 
-The TensorFlow official models are a collection of example models that use TensorFlow's high-level APIs. They are intended to be well-maintained, tested, and kept up to date with the latest TensorFlow API. They should also be reasonably optimized for fast performance while still being easy to read.
+The purpose of this repository is to start creating a collection of machine learning algorithms in both their server-side
+and browser-side implementations in order to gauge their relative performance. In the past few years there has been rapid
+development in browser-side deep learning libraries such as ConvNet.js, TensorFire, and Deeplearn.js (now Tensorflow.js).
+These libraries have allowed developers to tap into high-performance Machine Learning with minimial overhead, making Machine
+Learning more accessible as ever. Each model in this repository contains both it's server-side (written with TensorFlow) 
+as well as it's browser-side (written with Deeplearn) implementations and can be run with little-to-no setup!
 
-The master branch of the models are **in development**, and they target the [nightly binaries](https://github.com/tensorflow/tensorflow#installation) built from the [master branch of TensorFlow](https://github.com/tensorflow/tensorflow/tree/master). We aim to keep them backwards compatible with the latest release when possible (currently TensorFlow 1.5), but we cannot always guarantee compatibility.
+This repository has begun as an honours computer science project at McGill University, but I hope to see it grow over the
+next fews years as more state-of-the-art algorithms (and libraries) come out.
 
-**Stable versions** of the official models targeting releases of TensorFlow are available as tagged branches or [downloadable releases](https://github.com/tensorflow/models/releases). Model repository version numbers match the target TensorFlow release, such that [branch r1.4.0](https://github.com/tensorflow/models/tree/r1.4.0) and [release v1.4.0](https://github.com/tensorflow/models/releases/tag/v1.4.0) are compatible with [TensorFlow v1.4.0](https://github.com/tensorflow/tensorflow/releases/tag/v1.4.0).
+## What's Included
+In each folder, there sits an out-of-the-box implementation of various machine learning algorithm. 
 
-If you are on a version of TensorFlow earlier than 1.4, please [update your installation](https://www.tensorflow.org/install/).
+Currently there are the following benchmarks:
+* **MNIST Convolutional Network** - this is the typical CNN you will find in most 'Get Started' tutorials. Nothing too
+fancy! Yet given it's relevancy I thought it fitting to be included. 
+* **SqueezeNet** - this latest state-of-the-art network records AlexNet-like performance, but used only a fraction of
+the parameters. Because of this, it is a suitable target for devices that need to fetch models over a server, or limited 
+computational resources. Special thanks to @vonclites for his TensorFlow implementation. The DeepLearn version is a line-by-line
+translation of his code. 
+* **Utility Functions** - this includes a handful of utility functions needed to construct Neural Networks. This includes:
+ReLU activation (and all of its counterparts), the Conv2D layer function, and various reduction and unary function calls. 
 
 
----
+## What's Required
+As of now, the only requirements needed to run each successfully is:
 
-Below is a list of the models available.
+* [Python 3](https://www.python.org/downloads/) - needed to run the server-side implementation of the algorithms
+* [TensorFlow](https://www.tensorflow.org/) - the Deep Learning library used to construct all the models for the server-side code
+* [TypeScript](https://www.typescriptlang.org/) - all the browser-side code (except for MNIST) is written in TypeScript
+* [Browserify](http://browserify.org/) - is need to compile some of the TypeScript modules
+* and of course a modern browser (we suggest Chrome or FireFox) :)
 
-[mnist](mnist): A basic model to classify digits from the MNIST dataset.
+Each directory has a README with more specific instructions to run the code.
 
-[resnet](resnet): A deep residual network that can be used to classify both CIFAR-10 and ImageNet's dataset of 1000 classes.
+## What's To Come
+* A link to the final report highlighting and discussing the outcomes of the benchmarks as well as the benchmarking methodology
+used to rigourously analyse the data.
+* Implementation of [DenseNet](https://arxiv.org/abs/1608.06993)
+* Implementation of [MobileNet](https://arxiv.org/abs/1704.04861)
+* Implementation of [AlexNet](https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf)
+* Implementation of [Inception V3](https://arxiv.org/abs/1512.00567)
+* Continuous iterations of improvement as I become more familar with libaries
 
-[wide_deep](wide_deep): A model that combines a wide model and deep network to classify census income data.
+### Contributors
+* James Brace (Me) - Honours Computer Science student at McGill University. You can contact me at [jamesbrace@mail.mcgill.ca]()
 
-More models to come!
-
-If you would like to make any fixes or improvements to the models, please [submit a pull request](https://github.com/tensorflow/models/compare).
+### Special Thanks
+* @vonclites for his SqueezeNet implementation
+* The Google Brain team for making all their Deep Learning libraries open-source and accessible!
