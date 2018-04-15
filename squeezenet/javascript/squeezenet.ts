@@ -1,6 +1,6 @@
 // // tslint:disable-next-line:max-line-length
 import * as dl from 'deeplearn';
-import {Scalar, Tensor, Tensor1D, Tensor3D, Tensor4D} from 'deeplearn';
+import {Scalar, Tensor,  Tensor2D, Tensor3D, Tensor4D} from 'deeplearn';
 
 /*****************np
  * CONSTANTS
@@ -26,8 +26,8 @@ let data = {training: {images: [], labels: [], num_images: 0}, test: {images: []
 
 async function loadData() {
     // await CIFAR10.set(TRAINING_SIZE, TEST_SIZE);
-    const training = await CIFAR10.training.get(10);
-    const test = await CIFAR10.test.get(10);
+    const training = await CIFAR10.training.get(70);
+    const test = await CIFAR10.test.get(70);
 
     log(training);
     log(test);
@@ -55,99 +55,99 @@ async function loadData() {
  * WEIGHTS
  ****************/
 // Conv 1 weights
-const conv1Weights = dl.variable(dl.randomNormal([7, 7, 3,  96], 0, 0.1));
-const conv1Bias = dl.variable(dl.zeros([10,16,16,96]));
+const conv1Weights = dl.variable(dl.randomNormal([2, 2, 3,  96], 0, 0.1));
+const conv1Bias = dl.variable(dl.zeros([64, 32, 32, 96]));
+
+// Fire 1 weights
+const fire2SqueezeWeights = dl.variable(dl.randomNormal([1, 1, 96, 16], 0, 0.1));
+const fire2SqueezeBias = dl.variable(dl.zeros([64, 16, 16, 16]));
+
+const fire2Expand1Weights = dl.variable(dl.randomNormal([1, 1, 16, 64], 0, 0.1));
+const fire2Expand1Bias = dl.variable(dl.zeros([64, 16, 16, 64]));
+
+const fire2Expand2Weights = dl.variable(dl.randomNormal([3, 3, 16, 64], 0, 0.1));
+const fire2Expand2Bias = dl.variable(dl.randomNormal([64, 16, 16, 64], 0, 0.1));
 
 // Fire 2 weights
-const fire2SqueezeWeights = dl.variable(dl.randomNormal([1, 1, 3, 16], 0, 0.1));
-const fire2SqueezeBias = dl.variable(dl.zeros([1, 1, 3, 16]));
+const fire3SqueezeWeights = dl.variable(dl.randomNormal([1, 1, 128, 16], 0, 0.1));
+const fire3SqueezeBias = dl.variable(dl.zeros([64, 16, 16, 16]));
 
-const fire2Expand1Weights = dl.variable(dl.randomNormal([1, 1, 3, 64], 0, 0.1));
-const fire2Expand1Bias = dl.variable(dl.zeros([1, 1, 3, 64]));
+const fire3Expand1Weights = dl.variable(dl.randomNormal([1, 1, 16, 64], 0, 0.1));
+const fire3Expand1Bias = dl.variable(dl.zeros([64, 16, 16, 64]));
 
-const fire2Expand2Weights = dl.variable(dl.randomNormal([3, 3, 3, 64], 0, 0.1));
-const fire2Expand2Bias = dl.variable(dl.randomNormal([3, 3, 3, 64], 0, 0.1));
+const fire3Expand2Weights = dl.variable(dl.randomNormal([3, 3, 16, 64], 0, 0.1));
+const fire3Expand2Bias = dl.variable(dl.zeros([64, 16, 16, 64]));
+
 
 // Fire 3 weights
-const fire3SqueezeWeights = dl.variable(dl.randomNormal([1, 1, 3, 16], 0, 0.1));
-const fire3SqueezeBias = dl.variable(dl.zeros([1, 1, 3, 16]));
+const fire4SqueezeWeights = dl.variable(dl.randomNormal([1, 1, 128, 32], 0, 0.1));
+const fire4SqueezeBias = dl.variable(dl.zeros([64,16,16,32]));
 
-const fire3Expand1Weights = dl.variable(dl.randomNormal([1, 1, 3, 64], 0, 0.1));
-const fire3Expand1Bias = dl.variable(dl.zeros([1, 1, 3, 64]));
+const fire4Expand1Weights = dl.variable(dl.randomNormal([1, 1, 32, 128], 0, 0.1));
+const fire4Expand1Bias = dl.variable(dl.zeros([64, 16,16, 128]));
 
-const fire3Expand2Weights = dl.variable(dl.randomNormal([3, 3, 3, 64], 0, 0.1));
-const fire3Expand2Bias = dl.variable(dl.zeros([3, 3, 3, 64]));
+const fire4Expand2Weights = dl.variable(dl.randomNormal([3, 3, 32, 128], 0, 0.1));
+const fire4Expand2Bias = dl.variable(dl.zeros([64, 16,16, 128]));
 
 
 // Fire 4 weights
-const fire4SqueezeWeights = dl.variable(dl.randomNormal([1, 1, 3, 32], 0, 0.1));
-const fire4SqueezeBias = dl.variable(dl.zeros([1, 1, 3, 32]));
+const fire5SqueezeWeights = dl.variable(dl.randomNormal([1, 1, 256, 32], 0, 0.1));
+const fire5SqueezeBias = dl.variable(dl.zeros([64, 8,8, 32]));
 
-const fire4Expand1Weights = dl.variable(dl.randomNormal([1, 1, 3, 128], 0, 0.1));
-const fire4Expand1Bias = dl.variable(dl.zeros([1, 1, 3, 128]));
+const fire5Expand1Weights = dl.variable(dl.randomNormal([1, 1, 32, 128], 0, 0.1));
+const fire5Expand1Bias = dl.variable(dl.zeros([64, 8,8, 128]));
 
-const fire4Expand2Weights = dl.variable(dl.randomNormal([3, 3, 3, 128], 0, 0.1));
-const fire4Expand2Bias = dl.variable(dl.zeros([3, 3, 3, 128]));
+const fire5Expand2Weights = dl.variable(dl.randomNormal([3, 3, 32, 128], 0, 0.1));
+const fire5Expand2Bias = dl.variable(dl.zeros([64, 8,8, 128]));
 
 
 // Fire 5 weights
-const fire5SqueezeWeights = dl.variable(dl.randomNormal([1, 1, 3, 32], 0, 0.1));
-const fire5SqueezeBias = dl.variable(dl.zeros([1, 1, 3, 32]));
+const fire6SqueezeWeights = dl.variable(dl.randomNormal([1, 1, 256, 48], 0, 0.1));
+const fire6SqueezeBias = dl.variable(dl.zeros([64, 8,8, 48]));
 
-const fire5Expand1Weights = dl.variable(dl.randomNormal([1, 1, 3, 128], 0, 0.1));
-const fire5Expand1Bias = dl.variable(dl.zeros([1, 1, 3, 128]));
+const fire6Expand1Weights = dl.variable(dl.randomNormal([1, 1, 48, 192], 0, 0.1));
+const fire6Expand1Bias = dl.variable(dl.zeros([64, 8,8, 192]));
 
-const fire5Expand2Weights = dl.variable(dl.randomNormal([3, 3, 3, 128], 0, 0.1));
-const fire5Expand2Bias = dl.variable(dl.zeros([3, 3, 3, 128]));
+const fire6Expand2Weights = dl.variable(dl.randomNormal([3, 3, 48, 192], 0, 0.1));
+const fire6Expand2Bias = dl.variable(dl.zeros([64, 8,8, 192]));
 
 
 // Fire 6 weights
-const fire6SqueezeWeights = dl.variable(dl.randomNormal([1, 1, 3, 48], 0, 0.1));
-const fire6SqueezeBias = dl.variable(dl.zeros([1, 1, 3, 48]));
+const fire7SqueezeWeights = dl.variable(dl.randomNormal([1, 1, 384, 48], 0, 0.1));
+const fire7SqueezeBias = dl.variable(dl.zeros([64, 8,8, 48]));
 
-const fire6Expand1Weights = dl.variable(dl.randomNormal([1, 1, 3, 192], 0, 0.1));
-const fire6Expand1Bias = dl.variable(dl.zeros([1, 1, 3, 192]));
+const fire7Expand1Weights = dl.variable(dl.randomNormal([1, 1, 48, 192], 0, 0.1));
+const fire7Expand1Bias = dl.variable(dl.zeros([64, 8,8, 192]));
 
-const fire6Expand2Weights = dl.variable(dl.randomNormal([3, 3, 3, 192], 0, 0.1));
-const fire6Expand2Bias = dl.variable(dl.zeros([3, 3, 3, 192]));
+const fire7Expand2Weights = dl.variable(dl.randomNormal([3, 3, 48, 192], 0, 0.1));
+const fire7Expand2Bias = dl.variable(dl.zeros([64, 8,8, 192]));
 
 
 // Fire 7 weights
-const fire7SqueezeWeights = dl.variable(dl.randomNormal([1, 1, 3, 48], 0, 0.1));
-const fire7SqueezeBias = dl.variable(dl.zeros([1, 1, 3, 48]));
+const fire8SqueezeWeights = dl.variable(dl.randomNormal([1, 1, 384, 64], 0, 0.1));
+const fire8SqueezeBias = dl.variable(dl.zeros([64, 8,8, 64]));
 
-const fire7Expand1Weights = dl.variable(dl.randomNormal([1, 1, 3, 192], 0, 0.1));
-const fire7Expand1Bias = dl.variable(dl.zeros([1, 1, 3, 192]));
+const fire8Expand1Weights = dl.variable(dl.randomNormal([1, 1, 64, 256], 0, 0.1));
+const fire8Expand1Bias = dl.variable(dl.zeros([64, 8,8, 256]));
 
-const fire7Expand2Weights = dl.variable(dl.randomNormal([3, 3, 3, 192], 0, 0.1));
-const fire7Expand2Bias = dl.variable(dl.zeros([3, 3, 3, 192]));
-
-
-// Fire 8 weights
-const fire8SqueezeWeights = dl.variable(dl.randomNormal([1, 1, 3, 64], 0, 0.1));
-const fire8SqueezeBias = dl.variable(dl.zeros([1, 1, 3, 64]));
-
-const fire8Expand1Weights = dl.variable(dl.randomNormal([1, 1, 3, 256], 0, 0.1));
-const fire8Expand1Bias = dl.variable(dl.zeros([1, 1, 3, 256]));
-
-const fire8Expand2Weights = dl.variable(dl.randomNormal([3, 3, 3, 256], 0, 0.1));
-const fire8Expand2Bias = dl.variable(dl.zeros([3, 3, 3, 256]));
+const fire8Expand2Weights = dl.variable(dl.randomNormal([3, 3, 64, 256], 0, 0.1));
+const fire8Expand2Bias = dl.variable(dl.zeros([64, 8,8, 256]));
 
 
 // Fire 9 weights
-const fire9SqueezeWeights = dl.variable(dl.randomNormal([1, 1, 3, 64], 0, 0.1));
-const fire9SqueezeBias = dl.variable(dl.zeros([1, 1, 3, 64]));
+const fire9SqueezeWeights = dl.variable(dl.randomNormal([1, 1, 512, 64], 0, 0.1));
+const fire9SqueezeBias = dl.variable(dl.zeros([64, 4, 4, 64]));
 
-const fire9Expand1Weights = dl.variable(dl.randomNormal([1, 1, 3, 256], 0, 0.1));
-const fire9Expand1Bias = dl.variable(dl.zeros([1, 1, 3, 256]));
+const fire9Expand1Weights = dl.variable(dl.randomNormal([1, 1, 64, 256], 0, 0.1));
+const fire9Expand1Bias = dl.variable(dl.zeros([64, 4, 4, 256]));
 
-const fire9Expand2Weights = dl.variable(dl.randomNormal([3, 3, 3, 256], 0, 0.1));
-const fire9Expand2Bias = dl.variable(dl.zeros([3, 3, 3, 256]));
+const fire9Expand2Weights = dl.variable(dl.randomNormal([3, 3, 64, 256], 0, 0.1));
+const fire9Expand2Bias = dl.variable(dl.zeros([64, 4, 4, 256]));
 
 
 // Conv 2 weights
-const conv2Weights = dl.variable(dl.randomNormal([1, 1, 3,  1000], 0, 0.1));
-const conv2Bias = dl.variable(dl.zeros([1, 1, 3,  1000]));
+const conv2Weights = dl.variable(dl.randomNormal([64, 1, 512,  10], 0, 0.1));
+const conv2Bias = dl.variable(dl.zeros([64, 4, 4, 10]));
 
 
 export class SqueezeNet {
@@ -162,7 +162,7 @@ export class SqueezeNet {
     * @param input un-preprocessed input Array.
     * @return The pre-softmax logits.
     */
-    predict(input: Tensor3D): Tensor1D {
+    predict(input: Tensor3D): Tensor2D {
         return this.model(input, false).logits;
     }
 
@@ -175,7 +175,7 @@ export class SqueezeNet {
     * @param training
     * @return A requested activation and the pre-softmax logits.
     */
-    model(input: Tensor, training: boolean): {logits: Tensor1D} {
+    model(input: Tensor, training: boolean): {logits: Tensor2D} {
         return dl.tidy(() => {
 
             log(input);
@@ -191,123 +191,148 @@ export class SqueezeNet {
 
             log("Stage: Convolution 1...");
 
+            console.log(preprocessedInput);
+
             /**
              * Convolution 1
              */
             const conv1relu = preprocessedInput
-                  .conv2d(conv1Weights as Tensor4D, 2, 'same')
-                  .add(conv1Bias as Tensor1D)
+                  .conv2d(conv1Weights as Tensor4D, 1, 'same')
+                  .add(conv1Bias)
                   .relu() as Tensor4D;
 
-            const pool1 = conv1relu.maxPool(2, 2, 0);
+            const pool1 = conv1relu.maxPool(2, 2, 'valid');
 
             log("Stage: Fire Module 1...");
 
             /**
-             * Fire Module 2
+             * Fire Module 1
              */
             const y2 = dl.tidy(() => {
-                return dl.conv2d(pool1, fire2SqueezeWeights as Tensor4D, 1, 0)
+                return dl.conv2d(pool1, fire2SqueezeWeights as Tensor4D, 1, 'same')
                     .add(fire2SqueezeBias)
                     .relu() as Tensor4D;
             });
 
             const left2 = dl.tidy(() => {
-                return dl.conv2d(y2, fire2Expand1Weights as Tensor4D, 1, 0)
+                return dl.conv2d(y2, fire2Expand1Weights as Tensor4D, 1, 'same')
                     .add(fire2Expand1Bias)
                     .relu();
             });
 
             const right2 = dl.tidy(() => {
-                return dl.conv2d(y2, fire2Expand2Weights as Tensor4D, 1, 1)
+                return dl.conv2d(y2, fire2Expand2Weights as Tensor4D, 1, 'same')
                     .add(fire2Expand2Bias)
                     .relu();
             });
 
-            const f2 = left2.concat(right2, 2) as Tensor4D;
+            const f2 = left2.concat(right2, 3) as Tensor4D;
 
 
-            log("Stage: Fire Module 3...");
+            log("Stage: Fire Module 2...");
 
 
              /**
-             * Fire Module 3
+             * Fire Module 2
              */
             const y3 = dl.tidy(() => {
-                return dl.conv2d(f2, fire3SqueezeWeights as Tensor4D, 1, 0)
+                return dl.conv2d(f2, fire3SqueezeWeights as Tensor4D, 1, 'same')
                     .add(fire3SqueezeBias)
                     .relu() as Tensor4D;
             });
 
             const left3 = dl.tidy(() => {
-                return dl.conv2d(y3, fire3Expand1Weights as Tensor4D, 1, 0)
+                return dl.conv2d(y3, fire3Expand1Weights as Tensor4D, 1, 'same')
                     .add(fire3Expand1Bias)
                     .relu();
             });
 
             const right3 = dl.tidy(() => {
-                return dl.conv2d(y3, fire3Expand2Weights as Tensor4D, 1, 1)
+                return dl.conv2d(y3, fire3Expand2Weights as Tensor4D, 1, 'same')
                     .add(fire3Expand2Bias)
                     .relu();
             });
 
-            const pool2 = dl.tidy(() => {
-                const f3 = left3.concat(right3, 2) as Tensor4D;
-                return f3.maxPool(3, 2, 'valid');
-            });
+            const f3 = left3.concat(right3, 3) as Tensor4D;
 
-            log("Stage: Fire Module 4...");
+            log("Stage: Fire Module 3...");
 
              /**
-             * Fire Module 4
+             * Fire Module 3
              */
             const y4 = dl.tidy(() => {
-                return dl.conv2d(pool2, fire4SqueezeWeights as Tensor4D, 1, 0)
+                return dl.conv2d(f3, fire4SqueezeWeights as Tensor4D, 1, 'same')
                     .add(fire4SqueezeBias)
                     .relu() as Tensor4D;
             });
 
             const left4 = dl.tidy(() => {
-                return dl.conv2d(y4, fire4Expand1Weights as Tensor4D, 1, 0)
+                return dl.conv2d(y4, fire4Expand1Weights as Tensor4D, 1, 'same')
                     .add(fire4Expand1Bias)
                     .relu();
             });
 
             const right4 = dl.tidy(() => {
-                return dl.conv2d(y4, fire4Expand2Weights as Tensor4D, 1, 1)
+                return dl.conv2d(y4, fire4Expand2Weights as Tensor4D, 1, 'same')
                     .add(fire4Expand2Bias)
                     .relu();
             });
 
-            const f4 = left4.concat(right4, 2) as Tensor4D;
+            const pool2 = dl.tidy(() => {
+                const f4 = left4.concat(right4, 3) as Tensor4D;
+                return f4.maxPool(2, 2, 'valid');
+            });
 
-            log("Stage: Fire Module 5...");
+            log("Stage: Fire Module 4...");
 
             /**
-             * Fire Module 5
+             * Fire Module 4
              */
             const y5 = dl.tidy(() => {
-                return dl.conv2d(f4, fire5SqueezeWeights as Tensor4D, 1, 0)
+                return dl.conv2d(pool2, fire5SqueezeWeights as Tensor4D, 1, 'same')
                     .add(fire5SqueezeBias)
                     .relu() as Tensor4D;
             });
 
             const left5 = dl.tidy(() => {
-                return dl.conv2d(y5, fire5Expand1Weights as Tensor4D, 1, 0)
+                return dl.conv2d(y5, fire5Expand1Weights as Tensor4D, 1, 'same')
                     .add(fire5Expand1Bias)
                     .relu();
             });
 
             const right5 = dl.tidy(() => {
-                return dl.conv2d(y5, fire5Expand2Weights as Tensor4D, 1, 1)
+                return dl.conv2d(y5, fire5Expand2Weights as Tensor4D, 1, 'same')
                     .add(fire5Expand2Bias)
                     .relu();
             });
 
-            const pool3 = dl.tidy(() => {
-                const f5 = left5.concat(right5, 2) as Tensor4D;
-                return f5.maxPool(3, 2, 0);
+            const f5 = left5.concat(right5, 3) as Tensor4D;
+
+            log("Stage: Fire Module 5...");
+
+
+            /**
+             * Fire Module 5
+             */
+            const y6 = dl.tidy(() => {
+                return dl.conv2d(f5, fire6SqueezeWeights as Tensor4D, 1, 'same')
+                    .add(fire6SqueezeBias)
+                    .relu() as Tensor4D;
             });
+
+            const left6 = dl.tidy(() => {
+                return dl.conv2d(y6, fire6Expand1Weights as Tensor4D, 1, 'same')
+                    .add(fire6Expand1Bias)
+                    .relu();
+            });
+
+            const right6 = dl.tidy(() => {
+                return dl.conv2d(y6, fire6Expand2Weights as Tensor4D, 1, 'same')
+                    .add(fire6Expand2Bias)
+                    .relu();
+            });
+
+            const f6 = left6.concat(right6, 3) as Tensor4D;
 
 
             log("Stage: Fire Module 6...");
@@ -316,25 +341,25 @@ export class SqueezeNet {
             /**
              * Fire Module 6
              */
-            const y6 = dl.tidy(() => {
-                return dl.conv2d(pool3, fire6SqueezeWeights as Tensor4D, 1, 0)
-                    .add(fire6SqueezeBias)
+            const y7 = dl.tidy(() => {
+                return dl.conv2d(f6, fire7SqueezeWeights as Tensor4D, 1, 'same')
+                    .add(fire7SqueezeBias)
                     .relu() as Tensor4D;
             });
 
-            const left6 = dl.tidy(() => {
-                return dl.conv2d(y6, fire6Expand1Weights as Tensor4D, 1, 0)
-                    .add(fire6Expand1Bias)
+            const left7 = dl.tidy(() => {
+                return dl.conv2d(y7, fire7Expand1Weights as Tensor4D, 1, 'same')
+                    .add(fire7Expand1Bias)
                     .relu();
             });
 
-            const right6 = dl.tidy(() => {
-                return dl.conv2d(y6, fire6Expand2Weights as Tensor4D, 1, 1)
-                    .add(fire6Expand2Bias)
+            const right7 = dl.tidy(() => {
+                return dl.conv2d(y7, fire7Expand2Weights as Tensor4D, 1, 'same')
+                    .add(fire7Expand2Bias)
                     .relu();
             });
 
-            const f6 = left6.concat(right6, 2) as Tensor4D;
+            const f7 = left7.concat(right7, 3) as Tensor4D;
 
 
             log("Stage: Fire Module 7...");
@@ -343,89 +368,65 @@ export class SqueezeNet {
             /**
              * Fire Module 7
              */
-            const y7 = dl.tidy(() => {
-                return dl.conv2d(f6, fire7SqueezeWeights as Tensor4D, 1, 0)
-                    .add(fire7SqueezeBias)
-                    .relu() as Tensor4D;
-            });
-
-            const left7 = dl.tidy(() => {
-                return dl.conv2d(y7, fire7Expand1Weights as Tensor4D, 1, 0)
-                    .add(fire7Expand1Bias)
-                    .relu();
-            });
-
-            const right7 = dl.tidy(() => {
-                return dl.conv2d(y7, fire7Expand2Weights as Tensor4D, 1, 1)
-                    .add(fire7Expand2Bias)
-                    .relu();
-            });
-
-            const f7 = left7.concat(right7, 2) as Tensor4D;
-
-
-            log("Stage: Fire Module 8...");
-
-
-            /**
-             * Fire Module 8
-             */
             const y8 = dl.tidy(() => {
-                return dl.conv2d(f7, fire8SqueezeWeights as Tensor4D, 1, 0)
+                return dl.conv2d(f7, fire8SqueezeWeights as Tensor4D, 1, 'same')
                     .add(fire8SqueezeBias)
                     .relu() as Tensor4D;
             });
 
             const left8 = dl.tidy(() => {
-                return dl.conv2d(y8, fire8Expand1Weights as Tensor4D, 1, 0)
+                return dl.conv2d(y8, fire8Expand1Weights as Tensor4D, 1, 'same')
                     .add(fire8Expand1Bias)
                     .relu();
             });
 
             const right8 = dl.tidy(() => {
-                return dl.conv2d(y8, fire8Expand2Weights as Tensor4D, 1, 1)
+                return dl.conv2d(y8, fire8Expand2Weights as Tensor4D, 1, 'same')
                     .add(fire8Expand2Bias)
                     .relu();
             });
 
-            const f8 = left8.concat(right8, 2) as Tensor3D;
+            const pool3 = dl.tidy(() => {
+                const f8 = left8.concat(right8, 3) as Tensor4D;
+                return f8.maxPool(2, 2, 'valid');
+            });
 
-            log("Stage: Fire Module 9...");
+            log("Stage: Fire Module 8...");
 
             /**
-             * Fire Module 9
+             * Fire Module 8
              */
             const y9 = dl.tidy(() => {
-                return dl.conv2d(f8, fire9SqueezeWeights as Tensor4D, 1, 0)
+                return dl.conv2d(pool3, fire9SqueezeWeights as Tensor4D, 1, 'same')
                     .add(fire9SqueezeBias)
                     .relu() as Tensor4D;
             });
 
             const left9 = dl.tidy(() => {
-                return dl.conv2d(y9, fire9Expand1Weights as Tensor4D, 1, 0)
+                return dl.conv2d(y9, fire9Expand1Weights as Tensor4D, 1, 'same')
                     .add(fire9Expand1Bias)
                     .relu();
             });
 
             const right9 = dl.tidy(() => {
-                return dl.conv2d(y9, fire9Expand2Weights as Tensor4D, 1, 1)
+                return dl.conv2d(y9, fire9Expand2Weights as Tensor4D, 1, 'same')
                     .add(fire9Expand2Bias)
                     .relu();
             });
 
-            const f9 = left9.concat(right9, 2) as Tensor4D;
+            const f9 = left9.concat(right9, 3) as Tensor4D;
 
             log("Stage: Convolutional Layer 2...");
 
 
             /**
-             * Convolutaional Layer 2
+             * Convolutional Layer 2
              */
-            const conv10 = f9.conv2d(conv2Weights as Tensor4D, 1, 0)
+            const conv10 = f9.conv2d(conv2Weights as Tensor4D, 1, 'same')
                 .add(conv2Bias) as Tensor4D;
 
             return {
-                logits: dl.avgPool(conv10, conv10.shape[0], 1, 0).as1D() as Tensor1D,
+                logits: dl.avgPool(conv10, conv10.shape[1], 1, 0).as2D(conv10.shape[0], 10) as Tensor2D,
             };
         });
     }
@@ -470,7 +471,7 @@ export class SqueezeNet {
      * @param logits
      * @return Tensor
      */
-    static loss(labels: Tensor, logits: Tensor1D): Scalar {
+    static loss(labels: Tensor, logits: Tensor2D): Scalar {
         return dl.losses.softmaxCrossEntropy(labels, logits).mean();
     }
 }
