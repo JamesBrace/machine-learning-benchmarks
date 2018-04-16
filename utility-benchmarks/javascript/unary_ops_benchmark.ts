@@ -71,8 +71,6 @@ function getUnaryOp(option: string) {
       return (x: dl.Tensor) => x.cosh();
     case 'tanh':
       return (x: dl.Tensor) => x.tanh();
-    case 'step':
-      return (x: dl.Tensor) => x.step();
     default:
       throw new Error(`Not found such ops: ${option}`);
   }

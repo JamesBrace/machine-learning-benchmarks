@@ -21,10 +21,6 @@ import * as benchmark_util from './benchmark_util';
 
 function getReductionOp(option: string): (x: dl.Tensor) => dl.Scalar {
   switch (option) {
-    case 'max':
-      return x => x.max();
-    case 'min':
-      return x => x.min();
     case 'argMax':
       return x => x.argMax();
     case 'argMin':
@@ -33,6 +29,8 @@ function getReductionOp(option: string): (x: dl.Tensor) => dl.Scalar {
       return x => x.sum();
     case 'logSumExp':
       return x => x.logSumExp();
+    case 'mean':
+      return x => x.mean();
     default:
       throw new Error(`Not found such ops: ${option}`);
   }

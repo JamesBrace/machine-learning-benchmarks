@@ -4,7 +4,7 @@ The purpose of this repository is to start creating a collection of machine lear
 and browser-side implementations in order to gauge their relative performance. In the past few years there has been rapid
 development in browser-side deep learning libraries such as ConvNet.js, TensorFire, and Deeplearn.js (now Tensorflow.js).
 These libraries have allowed developers to tap into high-performance Machine Learning with minimial overhead, making Machine
-Learning more accessible as ever. Each model in this repository contains both it's server-side (written with TensorFlow) 
+Learning more accessible than ever. Each model in this repository contains both it's server-side (written with TensorFlow) 
 as well as it's browser-side (written with Deeplearn) implementations and can be run with little-to-no setup!
 
 This repository has begun as an honours computer science project at McGill University, but I hope to see it grow over the
