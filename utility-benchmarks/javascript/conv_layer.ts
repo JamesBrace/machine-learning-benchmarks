@@ -28,16 +28,19 @@ export class ConvCPU implements BenchmarkTest {
         let start = performance.now();
 
         if (opType === 'regular') {
+            if (!params.outDepth) throw new Error(`Please specify outDepth in params when running in regular mode`);
             const wShape: [number, number, number, number] = [filterSize, filterSize, inDepth, params.outDepth];
             W = dl.randomUniform(wShape, -1, 1);
             x.conv2d(W, stride, pad);
         } else if (opType === 'transposed') {
+            if (!params.outDepth) throw new Error(`Please specify outDepth in params when running in transposed mode`);
             const regParams = params;
             const wShape: [number, number, number, number] = [filterSize, filterSize, inDepth, regParams.outDepth];
             W = dl.randomUniform(wShape, -1, 1);
             x = dl.randomUniform([size, size, regParams.outDepth], -1, 1);
             x.conv2dTranspose(W, [size, size, inDepth], stride, pad);
         } else if (opType === 'depthwise') {
+            if (!params.outDepth) throw new Error(`Please specify channelMul in params when running in depthwise mode`);
             const wShape: [number, number, number, number] = [filterSize, filterSize, inDepth, params.channelMul];
             W = dl.randomUniform(wShape, -1, 1);
             x.depthwiseConv2D(W, stride, pad);
