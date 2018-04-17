@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import tensorflow as tf
 import utilities as util
+import time
 
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
@@ -27,10 +28,11 @@ def run(size, backend):
         if doWarmup:
             sess.run(batch_normalization(size))
 
-            #  Add performance benchmarking here!
-            sess.run(batch_normalization(size))
-        else:
-            sess.run(batch_normalization(size))
+        start = time.time()
+        sess.run(batch_normalization(size))
+        end = time.time()
+        runtime = end - start
+        print(runtime)
 
 
 if __name__ == "__main__":

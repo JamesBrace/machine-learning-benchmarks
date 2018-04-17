@@ -4,12 +4,13 @@ from __future__ import print_function
 
 import tensorflow as tf
 import utilities as util
+import time
 
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
 
 
-def matrix_mul(size, warming_up):
+def matrix_mul(size):
     a = tf.random_uniform([size, size], -1, 1)
     b = tf.random_uniform([size, size], -1, 1)
     tf.matmul(a, b)
@@ -27,13 +28,14 @@ def run(size, backend):
         sess = tf.Session()
 
         if doWarmup:
-            sess.run(matrix_mul(size, True))
+            sess.run(matrix_mul(size))
 
-            #  Add performance benchmarking here!
-            sess.run(matrix_mul(size, False))
-        else:
-            sess.run(matrix_mul(size, False))
+        start = time.time()
+        sess.run(matrix_mul(size))
+        end = time.time()
+        runtime = end - start
+        print(runtime)
 
 
 if __name__ == "__main__":
-    run(10, 'gpu')
+    run(10, 'cpu')
