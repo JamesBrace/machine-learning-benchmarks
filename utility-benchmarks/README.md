@@ -10,7 +10,8 @@ use I found it fitting to include it in the repetoire. You can read the paper on
 * **Matrix Multiplication** - The reason for including this is a given! You have the option to perform matrix multiplication
 on any size matrix you want! Just feed the size as a parameter.
 * **Pooling** - Another widely used layer in CNNs that reduce the feature size in order to speed up training as well as
-prevent overfitting. This file includes both Max and Average pooling.
+prevent overfitting. This file includes both Max and Average pooling. In addition to the normal parameters that are fed,
+you can also specify the number of times you want to run the layer in CPU mode and get an average of all the run times.
 * **Unary Ops** - This includes a handful of useful unary operations such as: log, ReLU, ceiling, sin, tanh and more...
 * **Reduction Ops** - This includes a handful of reduction operations such as argMax and mean
 
