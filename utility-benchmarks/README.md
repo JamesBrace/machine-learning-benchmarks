@@ -3,6 +3,8 @@
 This directory holds a handful of useful benchmarks for the components that build up Neural Networks.
 This allows for concise benchmarking of individual layers and operations without the hassle of benchmarking an entire
 Neural Network. The following benchmarks are included:
+* **Convolutional Layer** - Takes in the hyperparameters for the convolutional filter as parameters. In addition, there
+is the option to run in regular, transposed, and depthwise modes. 
 * **Batch Normalization** - A common operation used before or after activation functions in Neural Networks. Given its wide
 use I found it fitting to include it in the repetoire. You can read the paper on Batch Normalization [here](https://arxiv.org/abs/1502.03167).
 * **Matrix Multiplication** - The reason for including this is a given! You have the option to perform matrix multiplication

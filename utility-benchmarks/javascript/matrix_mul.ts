@@ -17,7 +17,7 @@
 import * as dl from 'deeplearn';
 
 import {BenchmarkTest, LAST_RUN_CPU_CUTOFF_MS} from './benchmark';
-import * as benchmark_util from './benchmark_util';
+import * as benchmark_util from './utilities';
 
 export class MatmulCPUBenchmark implements BenchmarkTest {
   lastRunTimeMs: number;

@@ -18,7 +18,7 @@
 import * as dl from 'deeplearn';
 
 import {BenchmarkTest} from './benchmark';
-import * as benchmark_util from './benchmark_util';
+import * as benchmark_util from './utilities';
 
 const CPU_OP_RUNS = 1;
 

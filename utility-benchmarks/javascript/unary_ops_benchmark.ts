@@ -18,7 +18,7 @@
 import * as dl from 'deeplearn';
 
 import {BenchmarkTest} from './benchmark';
-import * as benchmark_util from './benchmark_util';
+import * as benchmark_util from './utilities';
 
 function getUnaryOp(option: string) {
   switch (option) {

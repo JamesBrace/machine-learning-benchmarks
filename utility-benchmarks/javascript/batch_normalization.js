@@ -53,7 +53,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 var dl = require("deeplearn");
 var benchmark_1 = require("./benchmark");
-var benchmark_util = require("./benchmark_util");
+var benchmark_util = require("./utilities");
 var BatchNormalization3DCPUBenchmark = /** @class */ (function () {
     function BatchNormalization3DCPUBenchmark() {
     }

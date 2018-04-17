@@ -17,7 +17,7 @@
 import * as dl from 'deeplearn';
 
 import {BenchmarkTest} from './benchmark';
-import * as benchmark_util from './benchmark_util';
+import * as benchmark_util from './utilities';
 
 function getReductionOp(option: string): (x: dl.Tensor) => dl.Scalar {
   switch (option) {
