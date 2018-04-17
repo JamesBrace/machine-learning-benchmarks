@@ -43,10 +43,8 @@ function getPoolingOp(option: string): (x: dl.Tensor3D, filterSize: [number, num
 }
 
 export class PoolingCPU implements BenchmarkTest {
-    run(size: number, option: string, params: PoolBenchmarkParams, runs?: number): Promise<number> {
+    run(size: number, option: string, params: PoolBenchmarkParams): Promise<number> {
         dl.setBackend('cpu');
-
-        runs = (runs)? runs : 1;
 
         const outputDepth = params.depth;
         const xShape: [number, number, number] = [size, size, outputDepth];
@@ -58,11 +56,9 @@ export class PoolingCPU implements BenchmarkTest {
 
         const start = performance.now();
 
-        for (let i = 0; i < runs; i++) {
-          op(x, fieldSize, stride);
-        }
+        op(x, fieldSize, stride);
 
-        const avgTime = (performance.now() - start) / runs;
+        const avgTime = (performance.now() - start);
         return Promise.resolve(avgTime)
     }
 }
@@ -87,7 +83,7 @@ export class PoolingGPU implements BenchmarkTest {
     }
 }
 
-export async function run(size, type, params, backend, runs){
+export async function run(size, type, params, backend){
     let benchmark: BenchmarkTest = (backend === 'gpu') ? new PoolingGPU() : new PoolingCPU();
-    return await benchmark.run(size, type, params, runs)
+    return await benchmark.run(size, type, params)
 }

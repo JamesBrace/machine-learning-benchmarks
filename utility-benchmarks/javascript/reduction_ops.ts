@@ -28,7 +28,9 @@ export class ReductionOpsCPU implements BenchmarkTest {
         const op = getReductionOp(option);
         const start = performance.now();
 
-        op(input).get();
+        dl.tidy(() => {
+          op(input).get();
+        });
 
         const end = performance.now();
         return end - start;
