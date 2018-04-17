@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import tensorflow as tf
 import utilities as util
+import time
 
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
@@ -11,8 +12,8 @@ config.gpu_options.allow_growth = True
 
 def get_reduction_op(x, option):
     reductions = {
-        'argMax': tf.arg_max(x),
-        'argMin': tf.arg_min(x),
+        'argMax': tf.argmax(x),
+        'argMin': tf.argmin(x),
         'sum': tf.reduce_sum(x),
         'mean': tf.reduce_mean(x),
         'logSumExp': tf.reduce_logsumexp(x)
@@ -29,7 +30,6 @@ def run(size, option, backend):
         assert backend == 'cpu'
         doWarmup = False
 
-
     x = tf.random_uniform([size, size], -1, 1)
     reduction = get_reduction_op(x, option)
 
@@ -40,10 +40,12 @@ def run(size, option, backend):
         if doWarmup:
             sess.run(reduction)
 
-            #  Add performance benchmarking here!
-            sess.run(reduction)
-        else:
-            sess.run(reduction)
+        start = time.time()
+        sess.run(reduction)
+        end = time.time()
+        runtime = end - start
+        print(runtime)
 
 
 if __name__ == "__main__":
+    run(100, 'argMax', 'cpu')

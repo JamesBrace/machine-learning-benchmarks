@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import tensorflow as tf
 import utilities as util
+import time
 
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
@@ -24,7 +25,6 @@ def get_unary_op(x, option):
         'elu': tf.nn.elu(x),
         'selu': tf.nn.selu(x),
         'leakyRelu': tf.nn.leaky_relu(x),
-        'prelu': tf.keras.layers.PReLU(x),
         'sigmoid': tf.sigmoid(x),
         'sin': tf.sin(x),
         'cos': tf.cos(x),
@@ -49,19 +49,21 @@ def run(size, option, backend):
         doWarmup = False
 
     x = tf.random_uniform([size, size], -1, 1)
-    reduction = get_unary_op(x, option)
+    unary_op = get_unary_op(x, option)
 
     backend = util.get_backend(backend)
     with tf.device(backend):
         sess = tf.Session()
 
         if doWarmup:
-            sess.run(reduction)
+            sess.run(unary_op)
 
-            #  Add performance benchmarking here!
-            sess.run(reduction)
-        else:
-            sess.run(reduction)
+        start = time.time()
+        sess.run(unary_op)
+        end = time.time()
+        runtime = end - start
+        print(runtime)
 
 
 if __name__ == "__main__":
+    run(100, 'sin', 'cpu')

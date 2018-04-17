@@ -48,9 +48,6 @@ function getUnaryOp(option: string) {
       return (x: dl.Tensor) => x.selu();
     case 'leakyRelu':
       return (x: dl.Tensor) => x.leakyRelu();
-    case 'prelu':
-      const alpha = dl.scalar(0.1);
-      return (x: dl.Tensor) => x.prelu(alpha);
     case 'sigmoid':
       return (x: dl.Tensor) => x.sigmoid();
     case 'sin':
