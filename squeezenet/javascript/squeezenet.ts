@@ -474,16 +474,13 @@ export class SqueezeNet {
     static loss(labels: Tensor, logits: Tensor2D): Scalar {
         return dl.losses.softmaxCrossEntropy(labels, logits).mean();
     }
+
+    async run_squeeze(): Promise<void> {
+        log("loading data");
+        await loadData();
+        log("training!");
+        await this.train();
+      // await test();
+    }
 }
 
-async function run_squeeze(): Promise<void> {
-    log("loading data");
-    await loadData();
-    let model = new SqueezeNet();
-
-    log("training!");
-    await model.train();
-  // await test();
-}
-
-run_squeeze();
