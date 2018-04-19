@@ -1,33 +1,37 @@
-const log = console.log;
-
-/**
- * CHANGE BASED ON TEST CONDITIONS!
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2018 James Brace
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
-// Either 'webgl' or 'cpu'
-const backend = 'webgl';
-dl.setBackend(backend);
+
+import * as tf from '@tensorflow/tfjs';
+import {MnistData} from "./data";
+import 'babel-polyfill';
+const log = console.log;
 
 /*****************************
  *  CONSTANTS
  ****************************/
-
-// Data set sizes
-const TRAINING_SIZE = 8000;
-const TEST_SIZE = 2000;
-const set = mnist.set(TRAINING_SIZE, TEST_SIZE);
-
-const data = {
-    training: {
-        images: set.training.map(obj => obj.input),
-        labels: set.training.map(obj => obj.output),
-        num_images: set.training.length,
-    },
-    test: {
-        images: set.test.map(obj => obj.input),
-        labels: set.test.map(obj => obj.output),
-        num_images: set.test.length,
-    }
-};
+// Data
+const d = new MnistData();
 
 // Hyper-parameters
 const LEARNING_RATE = .001;
@@ -37,136 +41,119 @@ const TRAIN_STEPS = 1000;
 // Data constants.
 const IMAGE_SIZE = 28;
 const LABELS_SIZE = 10;
-const optimizer = dl.train.adam(LEARNING_RATE);
 
-// Variables that we want to optimize
-const conv1OutputDepth = 32;
-const conv1Weights = dl.variable(dl.randomNormal([5, 5, 1, conv1OutputDepth], 0, 0.1));
+/*****************************
+ *  MODEL
+ ****************************/
 
-const conv2InputDepth = conv1OutputDepth;
-const conv2OutputDepth = 64;
-const conv2Weights = dl.variable(dl.randomNormal([5, 5, conv2InputDepth, conv2OutputDepth], 0, 0.1));
+function create_model() {
+    const optimizer = tf.train.adam(LEARNING_RATE);
+    const model = tf.sequential();
 
-const fullyConnectedWeights1 = dl.variable(dl.randomNormal([7 * 7 * conv2OutputDepth, 1024], 0, 0.1));
-const fullyConnectedBias1 = dl.variable(dl.zeros([1024]));
+    model.add(tf.layers.conv2d({
+        inputShape: [IMAGE_SIZE, IMAGE_SIZE, 1],
+        kernelSize: 5,
+        filters: 32,
+        strides: 1,
+        activation: 'relu',
+        kernelInitializer: 'randomNormal',
+        biasInitializer: 'zeros'
+    }));
 
-const fullyConnectedWeights2 = dl.variable(
-    dl.randomNormal([1024, LABELS_SIZE], 0, 0.1));
-const fullyConnectedBias2 = dl.variable(dl.zeros([10]));
+    model.add(tf.layers.maxPooling2d({poolSize: [2, 2], strides: [2, 2]}));
 
-// Loss function
-function loss(labels, logits) {
-    return dl.losses.softmaxCrossEntropy(labels, logits).mean();
+    model.add(tf.layers.conv2d({
+        kernelSize: 5,
+        filters: 64,
+        strides: 1,
+        activation: 'relu',
+        kernelInitializer: 'randomNormal',
+        biasInitializer: 'zeros'
+    }));
+
+    model.add(tf.layers.maxPooling2d({poolSize: [2, 2], strides: [2, 2]}));
+
+    model.add(tf.layers.flatten());
+
+    model.add(tf.layers.dense({units: LABELS_SIZE, kernelInitializer: 'randomNormal',
+        biasInitializer: 'zeros', activation: 'softmax'}));
+
+    model.compile({
+        optimizer: optimizer,
+        loss: 'categoricalCrossentropy',
+        metrics: ['accuracy'],
+    });
+
+    return model;
 }
 
-// Our actual model
-function model(inputXs, training) {
-    const xs = inputXs.as4D(-1, IMAGE_SIZE, IMAGE_SIZE, 1);
-
-    const strides = 2;
-    const keep_prob = 0.4;
-
-    // Conv 1
-    const layer1 = dl.tidy(() => {
-        return xs.conv2d(conv1Weights, 1, 'same')
-            .relu()
-            .maxPool([2, 2], strides, 'same');
-    });
-
-    // Conv 2
-    const layer2 = dl.tidy(() => {
-        return layer1.conv2d(conv2Weights, 1, 'same')
-            .relu()
-            .maxPool([2, 2], strides, 'same');
-    });
-
-
-    // Dense layer
-    const full = dl.tidy(() => {
-        return layer2.as2D(-1, 7 * 7 * 64)
-            .matMul(fullyConnectedWeights1)
-            .add(fullyConnectedBias1)
-            .relu();
-    });
-
-    if(training){
-        // Dropout
-        const dropout = dl.tidy(() => {
-            if (keep_prob > 1 || keep_prob < 0) {
-                throw "Keep probability must be between 0 and 1"
-            }
-
-            if (keep_prob === 1) return full;
-
-            const uniform_tensor = dl.randomUniform(full.shape);
-            const prob_tensor = dl.fill(full.shape, keep_prob);
-            const random_tensor = dl.add(uniform_tensor, prob_tensor);
-            const floor_tensor = dl.floor(random_tensor);
-
-            return full.div(dl.scalar(keep_prob)).mul(floor_tensor)
-        });
-
-        return dl.matMul(dropout || full , fullyConnectedWeights2).add(fullyConnectedBias2);
-
-    }
-
-    return dl.matMul(full , fullyConnectedWeights2).add(fullyConnectedBias2);
-}
-
-function nextTrainBatch(){
-    let mapped = data.training.images.map((img, index) => {
-            return {img: img, label: data.training.labels[index]}
-        });
-
-    const shuffled = mapped.sort(() => .5 - Math.random());// shuffle
-    return {images: dl.tensor(shuffled.map(obj => obj.img).slice(0, BATCH_SIZE)),
-        labels: dl.tensor(shuffled.map(obj => obj.label).slice(0, BATCH_SIZE))}
+/*****************************
+ * HELPERS
+ ****************************/
+// Gets the next shuffled training batch
+function nextBatch(type, batch_size = BATCH_SIZE) {
+    return (type === 'train') ? d.nextTrainBatch(batch_size) : d.nextTestBatch(batch_size);
 }
 
 // Train the model.
-async function train() {
-  const returnCost = true;
+async function train(model) {
+    for (let i = 0; i < TRAIN_STEPS; i++) {
+        const batch = nextBatch('train');
 
-  for (let i = 0; i < TRAIN_STEPS; i++) {
-    const cost = optimizer.minimize(() => {
-      const batch = nextTrainBatch();
-      return loss(batch.labels, model(batch.images, true));
-    }, returnCost);
+        log(batch);
 
-    log(`loss[${i}]: ${cost.dataSync()}`);
+        const history = await model.fit(batch.images.reshape([BATCH_SIZE, 28, 28, 1]), batch.labels,
+            {batchSize: BATCH_SIZE, epochs: 1});
 
-    await dl.nextFrame();
-  }
+        const loss = history.history.loss[0];
+        const accuracy = history.history.acc[0];
+        log(`loss[${i}]: ${loss}`);
+        log(`accuracy[${i}]: ${accuracy}`);
+
+        await tf.nextFrame();
+    }
 }
 
 // Predict the digit number from a batch of input images.
-function predict(x){
-  const pred = dl.tidy(() => {
-    const axis = 1;
-    return model(x, false).argMax(axis);
-  });
-  return Array.from(pred.dataSync());
+function predict(model, batch){
+    return tf.tidy(() => {
+        const output = model.predict(batch.images.reshape([-1, 28, 28, 1]));
+        return {labels: batch.labels, logits: output}
+    });
 }
 
-// Given a logits or label vector, return the class indices.
-function classesFromLabel(y) {
-  const axis = 1;
-  const pred = y.argMax(axis);
-
-  return Array.from(pred.dataSync());
+export async function set_data(){
+    await d.load()
 }
 
-async function test() {
-    const testExamples = 50;
-    const batch = nextTestBatch(testExamples);
-    const predictions = predict(batch.xs);
-    const labels = classesFromLabel(batch.labels);
-    log(loss(labels, predictions))
+/*****************************
+ *  DRIVER
+ ****************************/
+let model;
+export async function run_mnist(backend, mode) {
+    // Set backend to run on either CPU or GPU
+    if(backend === 'gpu' || backend === 'cpu'){
+        (backend === 'gpu') ? tf.setBackend('webgl') : tf.setBackend('cpu');
+    } else {
+        throw new Error(`Invalid backend parameter: ${backend}. Please specify either 'cpu' or 'gpu'`)
+    }
+
+    if (mode === 'train'){
+        await set_data();
+        model = create_model();
+        await train(model);
+    } else {
+        const testExamples = 100;
+        const batch = d.nextTestBatch(testExamples);
+
+        let results = predict(model, batch);
+
+        const axis = 1;
+        const labels = Array.from(results.batch.labels.argMax(axis).dataSync());
+        const predictions = Array.from(results.output.argMax(axis).dataSync());
+    }
 }
 
-async function run_mnist() {
-    await train();
-    // await test();
-}
-
-run_mnist();
+run_mnist('gpu', 'train')
+    .then(()=> {})
+    .catch((err) => log(err));
