@@ -23,205 +23,114 @@
  */
 
 import * as tf from '@tensorflow/tfjs';
+import {MnistData} from "./data";
 import 'babel-polyfill';
-import {AdamOptimizer, Tensor, Tensor1D, Tensor2D, Tensor4D, Scalar, Variable} from '@tensorflow/tfjs';
 const log = console.log;
 
 /*****************************
  *  CONSTANTS
  ****************************/
-
-// Data set sizes
-const TRAINING_SIZE: number = 8000;
-const TEST_SIZE: number = 2000;
-const set = mnist.set(TRAINING_SIZE, TEST_SIZE);
-
-log(set);
-
-// MNIST Data
-const data = {
-    training: {
-        images: set.training.map(obj => obj.input),
-        labels: set.training.map(obj => obj.output),
-        num_images: set.training.length,
-    },
-    test: {
-        images: set.test.map(obj => obj.input),
-        labels: set.test.map(obj => obj.output),
-        num_images: set.test.length,
-    }
-};
+// Data
+const d = new MnistData();
 
 // Hyper-parameters
-const LEARNING_RATE: number = .001;
-const BATCH_SIZE: number = 64;
-const TRAIN_STEPS: number = 1000;
+const LEARNING_RATE = .001;
+const BATCH_SIZE = 64;
+const TRAIN_STEPS = 1000;
 
 // Data constants.
-const IMAGE_SIZE: number = 28;
-const LABELS_SIZE: number = 10;
-const optimizer: AdamOptimizer = tf.train.adam(LEARNING_RATE);
-
-/*****************************
- *  WEIGHTS
- ****************************/
-
-// Variables that we want to optimize
-const conv1OutputDepth: number = 32;
-const conv1Weights: Variable = tf.variable(tf.randomNormal([5, 5, 1, conv1OutputDepth], 0, 0.1));
-
-const conv2InputDepth: number = conv1OutputDepth;
-const conv2OutputDepth: number = 64;
-const conv2Weights: Variable = tf.variable(tf.randomNormal([5, 5, conv2InputDepth, conv2OutputDepth], 0, 0.1));
-
-const fullyConnectedWeights1: Variable = tf.variable(tf.randomNormal([7 * 7 * conv2OutputDepth, 1024], 0, 0.1));
-const fullyConnectedBias1: Variable = tf.variable(tf.zeros([1024]));
-
-const fullyConnectedWeights2: Variable  = tf.variable(tf.randomNormal([1024, LABELS_SIZE], 0, 0.1));
-const fullyConnectedBias2: Variable  = tf.variable(tf.zeros([10]));
-
-// Loss function
-function loss(labels: Tensor2D, logits: Tensor2D): Tensor1D {
-    return tf.losses.softmaxCrossEntropy(labels, logits).mean();
-}
+const IMAGE_SIZE = 28;
+const LABELS_SIZE = 10;
 
 /*****************************
  *  MODEL
  ****************************/
-function model(inputXs: Tensor, training: boolean): Tensor2D {
-    const xs = inputXs.as4D(-1, IMAGE_SIZE, IMAGE_SIZE, 1);
 
-    const strides: number = 2;
-    const keep_prob: number = 0.4;
+function create_model() {
+    const optimizer = tf.train.adam(LEARNING_RATE);
+    const model = tf.sequential();
 
-    // Conv 1
-    const layer1: Tensor4D = tf.tidy(() => {
-        return xs.conv2d(conv1Weights, 1, 'same')
-            .relu()
-            .maxPool([2, 2], strides, 'same');
+    model.add(tf.layers.conv2d({
+        inputShape: [IMAGE_SIZE, IMAGE_SIZE, 1],
+        kernelSize: 5,
+        filters: 32,
+        strides: 1,
+        activation: 'relu',
+        kernelInitializer: 'randomNormal',
+        biasInitializer: 'zeros'
+    }));
+
+    model.add(tf.layers.maxPooling2d({poolSize: [2, 2], strides: [2, 2]}));
+
+    model.add(tf.layers.conv2d({
+        kernelSize: 5,
+        filters: 64,
+        strides: 1,
+        activation: 'relu',
+        kernelInitializer: 'randomNormal',
+        biasInitializer: 'zeros'
+    }));
+
+    model.add(tf.layers.maxPooling2d({poolSize: [2, 2], strides: [2, 2]}));
+
+    model.add(tf.layers.flatten());
+
+    model.add(tf.layers.dense({units: LABELS_SIZE, kernelInitializer: 'randomNormal',
+        biasInitializer: 'zeros', activation: 'softmax'}));
+
+    model.compile({
+        optimizer: optimizer,
+        loss: 'categoricalCrossentropy',
+        metrics: ['accuracy'],
     });
 
-    // Conv 2
-    const layer2: Tensor4D = tf.tidy(() => {
-        return layer1.conv2d(conv2Weights, 1, 'same')
-            .relu()
-            .maxPool([2, 2], strides, 'same');
-    });
-
-    // Dense layer
-    const full = tf.tidy(() => {
-        return layer2.as2D(-1, 7 * 7 * 64)
-            .matMul(fullyConnectedWeights1)
-            .add(fullyConnectedBias1)
-            .relu();
-    }) as Tensor2D;
-
-    if(training){
-        // Dropout
-        const dropout: Tensor2D = tf.tidy(() => {
-            if (keep_prob > 1 || keep_prob < 0) {
-                throw "Keep probability must be between 0 and 1"
-            }
-
-            if (keep_prob === 1) return full;
-
-            const uniform_tensor: Tensor2D = tf.randomUniform(full.shape);
-            const prob_tensor: Tensor2D = tf.fill(full.shape, keep_prob);
-            const random_tensor: Tensor2D = tf.add(uniform_tensor, prob_tensor);
-            const floor_tensor: Tensor2D = tf.floor(random_tensor);
-
-            return full.div(tf.scalar(keep_prob)).mul(floor_tensor)
-        });
-
-        return tf.matMul(dropout, fullyConnectedWeights2).add(fullyConnectedBias2);
-    }
-
-    return tf.matMul(full, fullyConnectedWeights2).add(fullyConnectedBias2);
+    return model;
 }
 
 /*****************************
  * HELPERS
  ****************************/
-
 // Gets the next shuffled training batch
-function nextBatch(type: string, batch_size = BATCH_SIZE): {images: Tensor, labels: Tensor} {
-    let mapped = data[type].images.map((img, index) => {
-            return {img: img, label: data.training.labels[index]}
-        });
-
-    const shuffled = mapped.sort(() => .5 - Math.random());// shuffle
-    return {images: tf.tensor(shuffled.map(obj => obj.img).slice(0, batch_size)),
-        labels: tf.tensor(shuffled.map(obj => obj.label).slice(0, batch_size))}
+function nextBatch(type, batch_size = BATCH_SIZE) {
+    return (type === 'train') ? d.nextTrainBatch(batch_size) : d.nextTestBatch(batch_size);
 }
 
 // Train the model.
-async function train(): Promise<{cumul: number, model: number}> {
-    let model_time: number = 0;
-    const returnCost: boolean = true;
-
-    let cumul_time_start = performance.now();
+async function train(model) {
     for (let i = 0; i < TRAIN_STEPS; i++) {
-        const cost: Scalar = optimizer.minimize(() => {
-            const batch = nextBatch('training');
-            let start_model = performance.now();
-            let logits: Tensor2D = model(batch.images, true);
-            let end_model = performance.now();
-            model_time += end_model - start_model;
-            return loss(batch.labels, logits);
-        }, returnCost);
+        const batch = nextBatch('train');
 
-        // log(`loss[${i}]: ${cost.dataSync()}`);
+        log(batch);
+
+        const history = await model.fit(batch.images.reshape([BATCH_SIZE, 28, 28, 1]), batch.labels,
+            {batchSize: BATCH_SIZE, epochs: 1});
+
+        const loss = history.history.loss[0];
+        const accuracy = history.history.acc[0];
+        log(`loss[${i}]: ${loss}`);
+        log(`accuracy[${i}]: ${accuracy}`);
 
         await tf.nextFrame();
     }
-
-    let cumul_time_end = performance.now();
-    return {cumul: cumul_time_end - cumul_time_start, model: model_time/TRAIN_STEPS}
 }
 
 // Predict the digit number from a batch of input images.
-function predict(x){
-
-    let times = {cumul: 0, model: 0};
-
-    const pred = tf.tidy(() => {
-        const axis = 1;
-
-        let start = performance.now();
-        let pred = model(x, false).argMax(axis);
-        let end = performance.now();
-
-        times.cumul = times.model = end - start;
-
-        return pred
+function predict(model, batch){
+    return tf.tidy(() => {
+        const output = model.predict(batch.images.reshape([-1, 28, 28, 1]));
+        return {labels: batch.labels, logits: output}
     });
-
-  return {times: times, logits: Array.from(pred.dataSync())} ;
 }
 
-// Given a logits or label vector, return the class indices.
-function classesFromLabel(y) {
-  const axis = 1;
-  const pred = y.argMax(axis);
-  return Array.from(pred.dataSync());
+export async function set_data(){
+    await d.load()
 }
-
-async function test(): Promise<{cumul: number, model: number}> {
-    const batch = nextBatch('test', 1);
-    const predictions = predict(batch.images);
-
-    // const labels = classesFromLabel(batch.labels);
-    // log(loss(labels, predictions.logits))
-
-    return {cumul: predictions.times.cumul, model: predictions.times.model}
-}
-
 
 /*****************************
  *  DRIVER
  ****************************/
+let model;
 export async function run_mnist(backend, mode) {
-
     // Set backend to run on either CPU or GPU
     if(backend === 'gpu' || backend === 'cpu'){
         (backend === 'gpu') ? tf.setBackend('webgl') : tf.setBackend('cpu');
@@ -229,16 +138,22 @@ export async function run_mnist(backend, mode) {
         throw new Error(`Invalid backend parameter: ${backend}. Please specify either 'cpu' or 'gpu'`)
     }
 
+    if (mode === 'train'){
+        await set_data();
+        model = create_model();
+        await train(model);
+    } else {
+        const testExamples = 100;
+        const batch = d.nextTestBatch(testExamples);
 
-    let times = (mode === 'train') ? await train() : await test();
-    let images_per_sec = (mode === 'train') ? times.model/ BATCH_SIZE * TRAIN_STEPS : times.model;
-    console.log(`Backend: ${backend}, Cumulative time: ${times.cumul}, Model time: ${times.model}, Images/sec: ${images_per_sec}`);
+        let results = predict(model, batch);
 
-    return {
-        status: 1,
-        options: `run_mnist('${backend}', '${mode}')`,
-        time: {cumulative: times.cumul, model: times.model, images_per_sec: images_per_sec}
+        const axis = 1;
+        const labels = Array.from(results.batch.labels.argMax(axis).dataSync());
+        const predictions = Array.from(results.output.argMax(axis).dataSync());
     }
 }
 
-run_mnist('gpu', 'train');
+run_mnist('gpu', 'train')
+    .then(()=> {})
+    .catch((err) => log(err));
