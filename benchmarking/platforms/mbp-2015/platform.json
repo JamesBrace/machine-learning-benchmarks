@@ -1,0 +1,17 @@
+{
+    "short-name": "mbp-2015",
+    "type": "platform",
+    "name": "Darwin-17.5.0-x86_64-i386-64bit",
+    "cpu": "Intel Core i5",
+    "gpu": "Intel Iris Graphics 6100",
+    "memory": "8 GB",
+    "os": "Mac OS X 10.13.4",
+    "supported-languages": [
+        "x86_64"
+    ],
+    "supported-formats": [
+        "binary"
+    ],
+    "environments": [],
+    "location": "/Users/jamesbrace/Desktop/School/Third-Year/Honours/code/machine-learning-benchmarks/benchmarking/platforms/mbp-2015"
+}
