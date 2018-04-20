@@ -1,0 +1,8 @@
+{
+    "type": "experiment",
+    "short-name": "ostrich",
+    "version": "2.0.0",
+    "input-size":"small",
+    "iterations":10,
+    "environments":["chrome", "firefox"]
+}
