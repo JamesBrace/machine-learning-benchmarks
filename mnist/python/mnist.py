@@ -84,9 +84,6 @@ def cnn_model_fn(features, labels, mode, params):
         if mode == tf.estimator.ModeKeys.PREDICT:
             return tf.estimator.EstimatorSpec(mode=mode, predictions=predictions)
 
-        print(labels)
-        print(logits)
-
         # Calculate Loss (for both TRAIN and EVAL modes)
         loss = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
 

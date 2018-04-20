@@ -98,17 +98,19 @@ def dataset(type, directory, images_file, labels_file):
 
     # Create a default in-process session.
     with tf.Session() as sess:
-        image = sess.run(next_image)
-        label = sess.run(next_label)
-        print(label)
-        image_array.append(image)
-        label_array.append(label)
+        if type == 'train':
+            x = 60000
+        else:
+            x = 10000
+
+        for i in range(x):
+            image = sess.run(next_image)
+            label = sess.run(next_label)
+            image_array.append(image)
+            label_array.append(label)
 
     image_array = np.asarray(image_array, np.float32)
     label_array = np.asarray(label_array, np.int32)
-
-    print(image_array)
-    print(label_array)
 
     return {'images': image_array, 'labels': label_array}
 
