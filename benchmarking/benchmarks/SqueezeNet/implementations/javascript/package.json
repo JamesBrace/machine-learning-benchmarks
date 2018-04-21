@@ -16,10 +16,8 @@
     "parcel-bundler": "^1.7.1"
   },
   "scripts": {
-    "build": "./download-cifar.sh && tsc --sourceMap false && browserify -g browserify-shim --standalone squeezenet index.ts -p [tsify] -o dist/bundle.js",
-    "lint": "tslint -p . -t verbose",
-    "run-server": "cd cifar-10 && node cifar10-server.js",
-    "deploy": "yarn build && yarn run-server"
+    "build": "yarn && parcel build runner.js",
+    "run-server": "./download-cifar.sh && cd cifar-10 && node cifar10-server.js",
   },
   "license": "Apache-2.0",
   "dependencies": {

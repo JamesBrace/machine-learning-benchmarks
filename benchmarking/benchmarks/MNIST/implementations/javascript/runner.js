@@ -27,7 +27,7 @@ function runner(params) {
             start = performance.now();
 
             for(let x = 0; x < 50; x++){
-                benchmark.predict();
+                benchmark.predict(batch);
             }
             end = performance.now();
 

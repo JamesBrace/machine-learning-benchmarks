@@ -99,7 +99,7 @@ export class MNIST {
     }
 
     // Predict the digit number from a batch of input images.
-    predict(){
+    predict(batch){
         tf.tidy(() => {
             this.model.predict(batch.images.reshape([-1, 28, 28, 1]));
         });

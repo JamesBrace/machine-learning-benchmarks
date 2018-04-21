@@ -16,8 +16,8 @@
     "parcel-bundler": "^1.7.1"
   },
   "scripts": {
-    "build": "parcel build --no-cache mnist.js",
-    "test": "node ./dist/mnist.js"
+    "build": "yarn && parcel build runner.js",
+    "test": "yarn build && node ./dist/runner.js"
   },
   "license": "MIT",
   "dependencies": {
