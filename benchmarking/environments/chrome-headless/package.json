@@ -1,0 +1,22 @@
+{
+  "name": "ostrich-chrome-environment",
+  "version": "1.0.0",
+  "description": "Google Chrome browser environment for running benchmarks",
+  "main": "run",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Sable/ostrich-chrome-environment"
+  },
+  "author": "Erick Lavoie",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/Sable/ostrich-chrome-environment/issues"
+  },
+  "homepage": "https://github.com/Sable/ostrich-chrome-environment",
+  "dependencies": {
+    "ostrich-browser-run": "https://github.com/Sable/ostrich-browser-run"
+  }
+}

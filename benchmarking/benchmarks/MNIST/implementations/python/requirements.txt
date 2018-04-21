@@ -1,2 +1,0 @@
-tensorflow-gpu==latest
-six==latest

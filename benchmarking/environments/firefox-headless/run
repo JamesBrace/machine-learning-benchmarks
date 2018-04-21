@@ -1,0 +1,14 @@
+#!/usr/bin/env node
+var path = require('path')
+var os = require('os')
+var lib = require('ostrich-browser-run')
+
+var platform = os.platform()
+if (platform === 'darwin') {
+  lib.start('open -g -a firefox ')
+} else if (platform === 'linux') {
+  lib.start('firefox ')
+} else {
+  console.log('Unsupported platform ' + platform)
+  process.exit(1)
+}
