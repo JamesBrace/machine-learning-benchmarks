@@ -24,10 +24,10 @@ const CIFAR10 = (<any>window).CIFAR10 || {};
 
 let data = {training: {images: [], labels: [], num_images: 0}, test: {images: [], labels: [], num_images: 0}};
 
-async function loadData() {
+export async function loadData() {
     // await CIFAR10.set(TRAINING_SIZE, TEST_SIZE);
-    const training = await CIFAR10.training.get(70);
-    const test = await CIFAR10.test.get(70);
+    const training = await CIFAR10.training.get(8000);
+    const test = await CIFAR10.test.get(2000);
 
     log(training);
     log(test);
@@ -178,20 +178,7 @@ export class SqueezeNet {
     model(input: Tensor, training: boolean): {logits: Tensor2D} {
         return dl.tidy(() => {
 
-            log(input);
-
-            log("Stage: preprocessing...");
-
-            // Preprocess the input.
-            // let preprocessed = dl.sub(input.asType('float32'), this.preprocessOffset) as Tensor3D;
-
-            // log(preprocessed);
-
             let preprocessedInput = input.as4D(-1, IMAGE_SIZE, IMAGE_SIZE, 3);
-
-            log("Stage: Convolution 1...");
-
-            console.log(preprocessedInput);
 
             /**
              * Convolution 1
@@ -202,8 +189,6 @@ export class SqueezeNet {
                   .relu() as Tensor4D;
 
             const pool1 = conv1relu.maxPool(2, 2, 'valid');
-
-            log("Stage: Fire Module 1...");
 
             /**
              * Fire Module 1
@@ -229,9 +214,6 @@ export class SqueezeNet {
             const f2 = left2.concat(right2, 3) as Tensor4D;
 
 
-            log("Stage: Fire Module 2...");
-
-
              /**
              * Fire Module 2
              */
@@ -254,8 +236,6 @@ export class SqueezeNet {
             });
 
             const f3 = left3.concat(right3, 3) as Tensor4D;
-
-            log("Stage: Fire Module 3...");
 
              /**
              * Fire Module 3
@@ -283,8 +263,6 @@ export class SqueezeNet {
                 return f4.maxPool(2, 2, 'valid');
             });
 
-            log("Stage: Fire Module 4...");
-
             /**
              * Fire Module 4
              */
@@ -307,9 +285,6 @@ export class SqueezeNet {
             });
 
             const f5 = left5.concat(right5, 3) as Tensor4D;
-
-            log("Stage: Fire Module 5...");
-
 
             /**
              * Fire Module 5
@@ -335,9 +310,6 @@ export class SqueezeNet {
             const f6 = left6.concat(right6, 3) as Tensor4D;
 
 
-            log("Stage: Fire Module 6...");
-
-
             /**
              * Fire Module 6
              */
@@ -360,10 +332,7 @@ export class SqueezeNet {
             });
 
             const f7 = left7.concat(right7, 3) as Tensor4D;
-
-
-            log("Stage: Fire Module 7...");
-
+            
 
             /**
              * Fire Module 7
