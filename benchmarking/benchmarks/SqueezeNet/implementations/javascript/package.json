@@ -2,25 +2,18 @@
   "name": "deeplearn-squeezenet",
   "version": "0.2.0",
   "description": "Pretrained SqueezeNet model in deeplearn.js",
-  "main": "dist/squeezenet/index.js",
-  "unpkg": "dist/bundle.js",
-  "types": "dist/squeezenet/index.d.ts",
   "peerDependencies": {
     "deeplearn": "0.5.0"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/PAIR-code/deeplearnjs.git"
+    "url": "https://github.com/jamesbrace/machine-learning-benchmarks.git"
   },
   "devDependencies": {
-    "browserify": "16.2.0",
-    "browserify-shim": "^3.8.14",
-    "deeplearn": "^0.5.1",
-    "tsify": "^4.0.0",
-    "tslint": "^5.9.1",
-    "typescript": "^2.8.1",
-    "uglify-js": "^3.3.21",
-    "watchify": "^3.11.0"
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-runtime": "^6.26.0",
+    "parcel-bundler": "^1.7.1"
   },
   "scripts": {
     "build": "./download-cifar.sh && tsc --sourceMap false && browserify -g browserify-shim --standalone squeezenet index.ts -p [tsify] -o dist/bundle.js",
@@ -28,12 +21,8 @@
     "run-server": "cd cifar-10 && node cifar10-server.js",
     "deploy": "yarn build && yarn run-server"
   },
-  "browserify-shim": {
-    "deeplearn": "global:dl",
-    "_empty": "global:_empty"
-  },
   "license": "Apache-2.0",
   "dependencies": {
-    "babel-polyfill": "^6.26.0"
+    "deeplearn": "0.5.0"
   }
 }

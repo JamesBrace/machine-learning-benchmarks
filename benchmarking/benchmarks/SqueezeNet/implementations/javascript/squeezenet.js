@@ -1,6 +1,6 @@
 // // tslint:disable-next-line:max-line-length
 import * as dl from 'deeplearn';
-import {Scalar, Tensor,  Tensor2D, Tensor3D, Tensor4D} from 'deeplearn';
+import {CIFAR10} from "./cifar-10/cifar10-client";
 
 /*****************np
  * CONSTANTS
@@ -20,8 +20,6 @@ const optimizer = dl.train.adam(LEARNING_RATE);
 // const TEST_SIZE = 2000;
 const IMAGE_SIZE = 32;
 
-const CIFAR10 = (<any>window).CIFAR10 || {};
-
 let data = {training: {images: [], labels: [], num_images: 0}, test: {images: [], labels: [], num_images: 0}};
 
 export async function loadData() {
@@ -34,13 +32,13 @@ export async function loadData() {
 
      data = {
         training: {
-            images: training.map((obj:any) => obj.input),
-            labels: training.map((obj:any) => obj.output),
+            images: training.map((obj) => obj.input),
+            labels: training.map((obj) => obj.output),
             num_images: training.length,
         },
         test: {
-            images: test.map((obj:any) => obj.input),
-            labels: test.map((obj:any) => obj.output),
+            images: test.map((obj) => obj.input),
+            labels: test.map((obj) => obj.output),
             num_images: test.length,
         }
     };
@@ -151,21 +149,6 @@ const conv2Bias = dl.variable(dl.zeros([64, 4, 4, 10]));
 
 
 export class SqueezeNet {
-    // private preprocessOffset = dl.tensor1d([103.939, 116.779, 123.68]);
-
-
-    /**
-    * Infer through SqueezeNet, assumes variables have been loaded. This does
-    * standard ImageNet pre-processing before inferring through the model. This
-    * method returns named activations as well as pre-softmax logits.
-    *
-    * @param input un-preprocessed input Array.
-    * @return The pre-softmax logits.
-    */
-    predict(input: Tensor3D): Tensor2D {
-        return this.model(input, false).logits;
-    }
-
     /**
     * Infer through SqueezeNet, assumes variables have been loaded. This does
     * standard ImageNet pre-processing before inferring through the model. This
@@ -175,7 +158,7 @@ export class SqueezeNet {
     * @param training
     * @return A requested activation and the pre-softmax logits.
     */
-    model(input: Tensor, training: boolean): {logits: Tensor2D} {
+    model(input, training): {logits} {
         return dl.tidy(() => {
 
             let preprocessedInput = input.as4D(-1, IMAGE_SIZE, IMAGE_SIZE, 3);
@@ -332,7 +315,7 @@ export class SqueezeNet {
             });
 
             const f7 = left7.concat(right7, 3) as Tensor4D;
-            
+
 
             /**
              * Fire Module 7
@@ -360,8 +343,6 @@ export class SqueezeNet {
                 return f8.maxPool(2, 2, 'valid');
             });
 
-            log("Stage: Fire Module 8...");
-
             /**
              * Fire Module 8
              */
@@ -385,9 +366,6 @@ export class SqueezeNet {
 
             const f9 = left9.concat(right9, 3) as Tensor4D;
 
-            log("Stage: Convolutional Layer 2...");
-
-
             /**
              * Convolutional Layer 2
              */
@@ -402,36 +380,39 @@ export class SqueezeNet {
 
     // Train the model.
     async train() {
-        const returnCost = true;
-
         for (let i = 0; i < TRAIN_STEPS; i++) {
-            const cost = optimizer.minimize(() => {
-              const batch = this.nextTrainBatch();
-
-              log(`iteration [${i}]`);
+            optimizer.minimize(() => {
+              const batch = this.nextBatch('training');
               return SqueezeNet.loss(batch.labels, this.model(batch.images, true).logits);
-            }, returnCost);
-
-            log(`loss[${i}]: ${cost.dataSync()}`);
-
+            });
             await dl.nextFrame();
         }
     }
 
     /**
+    * Infer through SqueezeNet, assumes variables have been loaded. This does
+    * standard ImageNet pre-processing before inferring through the model. This
+    * method returns named activations as well as pre-softmax logits.
+    *
+    * @param input un-preprocessed input Array.
+    * @return The pre-softmax logits.
+    */
+    predict(input) {
+        return this.model(input, false).logits;
+    }
+
+    /**
      * Shuffles training data and return subset of batch size
-     * @return {{images: Tensor[]; labels: Tensor[]}}
+     * @return {{images[]; labels[]}}
      */
-    nextTrainBatch(){
-        let mapped = data.training.images.map((img: any, index: number) => {
-                return {img: img, label: data.training.labels[index]}
+    nextBatch(type, size = BATCH_SIZE){
+        let mapped = data[type].images.map((img, index) => {
+                return {img: img, label: data[type].labels[index]}
             });
 
-        log(mapped);
-
         const shuffled = mapped.sort(() => .5 - Math.random());// shuffle
-        return {images: dl.tensor(shuffled.map((obj:any) => obj.img).slice(0, BATCH_SIZE)),
-            labels: dl.tensor(shuffled.map((obj:any) => obj.label).slice(0, BATCH_SIZE))}
+        return {images: dl.tensor(shuffled.map((obj) => obj.img).slice(0, size)),
+            labels: dl.tensor(shuffled.map((obj) => obj.label).slice(0, size))}
     }
 
     /**
@@ -440,16 +421,8 @@ export class SqueezeNet {
      * @param logits
      * @return Tensor
      */
-    static loss(labels: Tensor, logits: Tensor2D): Scalar {
+    static loss(labels, logits) {
         return dl.losses.softmaxCrossEntropy(labels, logits).mean();
-    }
-
-    async run_squeeze(): Promise<void> {
-        log("loading data");
-        await loadData();
-        log("training!");
-        await this.train();
-      // await test();
     }
 }
 

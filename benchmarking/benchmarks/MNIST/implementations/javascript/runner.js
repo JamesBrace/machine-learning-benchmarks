@@ -14,7 +14,6 @@ function runner(params) {
             end = performance.now();
 
             if(mode === 'train'){
-                console.log("Computation time: " + (end - start) / 1000 + " s\n");
                 console.log(JSON.stringify({
                     status: 1,
                     options: `train( ${backend} )`,
@@ -24,11 +23,14 @@ function runner(params) {
                 return
             }
 
+            let batch = mnist.nextBatch('test', 100);
             start = performance.now();
-            benchmark.predict(100);
+
+            for(let x = 0; x < 50; x++){
+                benchmark.predict();
+            }
             end = performance.now();
 
-            console.log("Computation time: " + (end - start) / 1000 + " s\n");
             console.log(JSON.stringify({
                     status: 1,
                     options: `test( ${backend} )`,

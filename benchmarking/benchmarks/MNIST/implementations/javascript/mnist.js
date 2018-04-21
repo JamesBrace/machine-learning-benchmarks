@@ -99,9 +99,8 @@ export class MNIST {
     }
 
     // Predict the digit number from a batch of input images.
-    predict(size){
+    predict(){
         tf.tidy(() => {
-            const batch = nextBatch('test', size);
             this.model.predict(batch.images.reshape([-1, 28, 28, 1]));
         });
     }
@@ -112,7 +111,7 @@ export class MNIST {
  * HELPERS
  ****************************/
 // Gets the next shuffled training batch
-function nextBatch(type, batch_size = BATCH_SIZE) {
+export function nextBatch(type, batch_size = BATCH_SIZE) {
     return (type === 'train') ? d.nextTrainBatch(batch_size) : d.nextTestBatch(batch_size);
 }
 
