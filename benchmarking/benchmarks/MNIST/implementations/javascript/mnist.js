@@ -77,8 +77,6 @@ export class MNIST {
             await this.model.fit(batch.images.reshape([BATCH_SIZE, 28, 28, 1]), batch.labels, {batchSize: BATCH_SIZE, epochs: 1});
             await tf.nextFrame();
         }
-
-        log("done")
     }
 
     // Predict the digit number from a batch of input images.

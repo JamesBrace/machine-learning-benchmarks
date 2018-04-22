@@ -1,8 +1,11 @@
 // Look at david's paper to evaluate how many iterations one should
+const fs = require('fs');
+
 /**
  * Arg Parser
  */
-const ArgumentParser = require('node_modules/argparse/lib/argparse');
+const ArgumentParser = require('argparse').ArgumentParser;
+console.log(ArgumentParser);
 const parser = new ArgumentParser({
   version: '0.0.1',
   addHelp:true,
@@ -30,7 +33,7 @@ const args = parser.parseArgs();
  */
 require('geckodriver');
 
-const webdriver = require('selenium-webdriver');
+const wd = require('selenium-webdriver');
 const path = require('path');
 const firefox = require('selenium-webdriver/firefox');
 
@@ -43,10 +46,11 @@ const puppeteer = require('puppeteer');
 /**
  * URL Mapping
  */
+const path_to_js = 'implementations/javascript';
 const urls = {
-    mnist: "",
-    squeezenet: "",
-    utilities: ""
+    mnist: `MNIST/${path_to_js}/index.html`,
+    squeezenet: "dasd",
+    utilities: "sadasd"
 };
 
 /**
@@ -61,7 +65,6 @@ const browsers = {
 
 ///////////////////////////////////////////////////////////////////////
 
-
 async function run_test(){
     const test_url = urls[args.test];
     if(!test_url) throw new Error(`Invalid test option: ${args.test}`);
@@ -70,55 +73,78 @@ async function run_test(){
 
     if (browser === 'all') {
         for (b of browsers){
-            await spawn_browser(test_url, b)
+            await browsers[b](test_url)
         }
     } else {
-        await spawn_browser(test_url, browser)
+        await browsers[browser](test_url);
+        console.log("done");
+
     }
 }
 
-
-async function spawn_browser(url, browser){
-
-}
-
 async function load_and_capture_chrome(url){
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+        headless: false,
+        args: [
+          '--headless',
+          '--hide-scrollbars',
+          '--mute-audio'
+        ]
+    });
     const page = await browser.newPage();
-    await page.goto(url, {waitUntil: 'networkidle2'});
+    const watchDog = page.waitForFunction('window.name === "Close"', {timeout: 0});
 
     page.on('console', msg => {
-        
-      for (let i = 0; i < msg.args().length; ++i)
-        console.log(`${i}: ${msg.args()[i]}`);
+        msg.args().forEach(arg => {
+            if(msg.text().includes("Info")) {
+                console.log(msg.text());
+            } else {
+                const output = msg.text();
+                fs.appendFile("./output/MNIST/chrome-output.txt", `${output} \n`, err => {
+                    if(err) return console.log(err);
+                });
+            }
+        });
     });
 
+    await page.goto(`file://${path.resolve(__dirname, url)}`);
+    await watchDog;
     await browser.close();
 }
 
 async function load_and_capture_firefox(url){
+    const options = new firefox.Options();
+    const prefs = new wd.logging.Preferences();
+    let driver;
 
+    prefs.setLevel(wd.logging.Type.BROWSER, wd.logging.Level.ALL);
+    options.setLoggingPrefs(prefs);
+
+    const binary = new firefox.Binary(firefox.Channel.RELEASE);
+    binary.addArguments('-headless');
+
+    options.setBinary(binary);
+
+    driver = new wd.Builder()
+        .forBrowser('firefox')
+        .setFirefoxOptions(options)
+        .build();
+
+    driver
+        .get(`file://${path.resolve(__dirname, url)}`)
+        .then(() => driver.manage().logs().get(wd.logging.Type.BROWSER))
+        .then((logs) => {
+            fs.appendFile("./output/firefox-output.txt", logs, err => {
+                if(err) return console.log(err);
+            });
+        })
+        .then(() => driver.quit());
 }
 
+////////////////////////////////////////////////////////////////////
 
-async function capture(url) {
-  const binary = new firefox.Binary(firefox.Channel.RELEASE);
-  binary.addArguments('-headless'); // until newer webdriver ships
-
-  const options = new firefox.Options();
-  options.setBinary(binary);
-  // options.headless(); once newer webdriver ships
-
-  const driver = new Builder().forBrowser('firefox')
-    .setFirefoxOptions(options).build();
-
-  await driver.get(url);
-  const data = await driver.takeScreenshot();
-  fs.writeFileSync('./screenshot.png', data, 'base64');
-
-  driver.quit();
-}
-
-capture('https://hacks.mozilla.org/');
-
+run_test()
+    .catch(err => {
+        console.log(err)
+    });
 

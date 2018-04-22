@@ -1,0 +1,146 @@
+JSHandle:hello testingJSHandle:hello testingJSHandle:hello testingJSHandle:hello testingJSHandle:hello testing 
+JSHandle:hello testing 
+JSHandle:hello testing 
+JSHandle:hello testing 
+JSHandle:hello testing 
+JSHandle:hello testing 
+JSHandle:hello testing 
+JSHandle:hello testing 
+JSHandle:hello testing 
+JSHandle:poopeee 
+JSHandle:hello testing 
+JSHandle:hello testing 
+JSHandle:in runner 
+JSHandle:hello testing 
+JSHandle:hello testing 
+JSHandle:in runner 
+JSHandle:in setup 
+JSHandle:hello testing 
+JSHandle:in runner 
+JSHandle:in setup 
+JSHandle:in set data 
+JSHandle:model:  
+JSHandle@object 
+JSHandle:webgl 
+JSHandle:warming up gpu 
+JSHandle:done 
+JSHandle:start  of train:  
+JSHandle:26231.499999994412 
+JSHandle:done 
+JSHandle:end  of train:  
+JSHandle:42997.89999995846 
+JSHandle:{"options":"train( gpu )","time":16766.39999996405} 
+JSHandle:start of test:  
+JSHandle:43000.2000000095 
+JSHandle:end of test:  
+JSHandle:43008.59999994282 
+JSHandle:{"options":"test( gpu )","time":8.399999933317304} 
+JSHandle@object 
+JSHandle:in runner 
+JSHandle:in setup 
+JSHandle:in set data 
+JSHandle@object 
+JSHandle:model:  
+JSHandle:webgl 
+JSHandle:warming up gpu 
+JSHandle:done 
+JSHandle:start  of train:  
+JSHandle:68871.00000004284 
+JSHandle:done 
+JSHandle:end  of train:  
+JSHandle:85598.49999996368 
+JSHandle:{"options":"train( gpu )","time":16727.499999920838} 
+JSHandle:start of test:  
+JSHandle:85600.10000003967 
+JSHandle:end of test:  
+JSHandle:85604.30000000633 
+JSHandle:{"options":"test( gpu )","time":4.199999966658652} 
+JSHandle@object 
+JSHandle:in runner 
+JSHandle:in setup 
+JSHandle:in set data 
+JSHandle:model:  
+JSHandle@object 
+JSHandle:webgl 
+JSHandle:warming up gpu 
+JSHandle:done 
+JSHandle:start  of train:  
+JSHandle:108666.80000000633 
+hello testing 
+in runner 
+in setup 
+in set data 
+model:  JSHandle@object 
+webgl 
+warming up gpu 
+done 
+start  of train:  25014.70000005793 
+done 
+end  of train:  44990.100000053644 
+{"options":"train( gpu )","time":19975.399999995716} 
+start of test:  44993.20000002626 
+end of test:  45022.200000006706 
+{"options":"test( gpu )","time":28.999999980442226} 
+JSHandle@object 
+in runner 
+in setup 
+in set data 
+model:  JSHandle@object 
+webgl 
+warming up gpu 
+done 
+start  of train:  69080.70000004955 
+done 
+end  of train:  87984.10000000149 
+{"options":"train( gpu )","time":18903.399999951944} 
+start of test:  87985.50000006799 
+end of test:  87987.50000004657 
+{"options":"test( gpu )","time":1.9999999785795808} 
+JSHandle@object 
+in runner 
+in setup 
+in set data 
+model:  JSHandle@object 
+webgl 
+warming up gpu 
+hello testing 
+in runner 
+in setup 
+in set data 
+model:  
+webgl 
+warming up gpu 
+hello testing 
+in runner 
+in setup 
+in set data 
+model:  
+webgl 
+warming up gpu 
+hello testing 
+in runner 
+in setup 
+in set data 
+hello testing 
+in runner 
+in setup 
+in set data 
+model:  JSHandle@object 
+model:  JSHandle@object 
+webgl 
+warming up gpu 
+done 
+start  of train:  27648.199999937788 
+start  of train:  27648.199999937788 
+hello testing 
+in runner 
+in setup 
+in set data 
+model:  JSHandle@object 
+model:  JSHandle@object 
+webgl 
+warming up gpu 
+in setup 
+set backend 
+in set data 
+{"benchmark":"MNIST","backend":"gpu","implementation":"JavaScript","train":27931.899999966845,"test":1.9479999993927777} 
