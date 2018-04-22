@@ -1,6 +1,6 @@
 {
 	"type": "environment",
-	"short-name": "chrome",
+	"short-name": "chrome-headless",
 	"name": "Google Chrome",
 	"version": "47.0.2526.106 (64-bit)",
 	"supported-languages": ["js"],

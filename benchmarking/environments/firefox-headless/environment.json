@@ -1,6 +1,6 @@
 {
 	"type": "environment",
-	"short-name": "firefox",
+	"short-name": "firefox-headless",
 	"name": "Mozilla Firefox",
 	"version": "43.0.4",
 	"supported-languages": ["js"],

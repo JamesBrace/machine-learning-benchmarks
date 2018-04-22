@@ -1,8 +1,8 @@
 {
     "type": "benchmark",
-    "name":"MNIST",
-    "short-name":"mnist",
-    "description":"A simple CNN targeted to the MNIST dataset. Typical to what you will see in most ML library tutorials",
+    "name":"SqueezeNet",
+    "short-name":"squeezenet",
+    "description":"An implementation of SqueezeNet. https://arxiv.org/abs/1602.07360",
     "version":"0.0.1",
     "input-size":{
         "cpu-train": {"backend": "cpu", "mode": "train"},
