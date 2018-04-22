@@ -36,20 +36,16 @@ async function runner(backend) {
 
     let batch = mnist.nextBatch('test', 64);
 
-    const iterations = 50;
+    let start_test = performance.now();
+    log("start of test: ", start_test);
 
-    start = performance.now();
-    log("start of test: ", start);
+    await benchmark.predict(batch);
 
-    for(let x = 0; x < iterations; x++){
-        benchmark.predict(batch);
-    }
+    let end_test = performance.now();
 
-    end = performance.now();
+    log("end of test: ", end_test);
 
-    log("end of test: ", start);
-
-    let test_time = end - start / iterations;
+    let test_time = (end_test - start_test);
 
     console.log(JSON.stringify({
             options: `test( ${backend} )`,
@@ -59,42 +55,38 @@ async function runner(backend) {
     return {train: train_time, test: test_time}
 }
 
-function runner_gpu(){
-   return new Promise(resolve => {
-       runner('gpu')
-           .then(res => resolve(res))
-   })
-}
-
-function runner_cpu(){
-    return new Promise(resolve => {
-       runner('cpu')
-           .then(res => resolve(res))
-   })
-}
 
 (async ()=>{
-    let gpu_promises = [];
-    let cpu_promises = [];
 
-
-    for(let x = 0; x < 10; x++){
-        gpu_promises.push(runner_gpu);
-        cpu_promises.push(runner_cpu);
+    for(const x of [...Array(10).keys()]) {
+        let result = await runner('gpu');
+        log(result)
     }
 
-    log("gpu promises: ", gpu_promises);
 
-    Promise.all(gpu_promises).then(times => {
-        console.log("GPU TIMES");
-        console.log("===================");
-        console.log(times);
-    });
 
-    Promise.all(cpu_promises).then(times => {
-        console.log("CPU TIMES");
-        console.log("===================");
-        console.log(times);
-    });
+
+    // let gpu_promises = [];
+    // let cpu_promises = [];
+    //
+    //
+    // for(let x = 0; x < 10; x++){
+    //     gpu_promises.push(runner_gpu);
+    //     cpu_promises.push(runner_cpu);
+    // }
+    //
+    // log("gpu promises: ", gpu_promises);
+    //
+    // Promise.all(gpu_promises).then(times => {
+    //     console.log("GPU TIMES");
+    //     console.log("===================");
+    //     console.log(times);
+    // });
+    //
+    // Promise.all(cpu_promises).then(times => {
+    //     console.log("CPU TIMES");
+    //     console.log("===================");
+    //     console.log(times);
+    // });
 
 })();
