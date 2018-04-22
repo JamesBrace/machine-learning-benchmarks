@@ -32,7 +32,7 @@ def _expand(inputs, num_outputs):
     with tf.variable_scope('expand'):
         e1x1 = conv2d(inputs, num_outputs, [1, 1], stride=1, scope='1x1')
         e3x3 = conv2d(inputs, num_outputs, [3, 3], scope='3x3')
-    return tf.concat([e1x1, e3x3], 1)
+    return tf.concat([e1x1, e3x3], 3)
 
 
 class Squeezenet_CIFAR(object):
@@ -54,6 +54,7 @@ class Squeezenet_CIFAR(object):
 
     @staticmethod
     def _squeezenet(images, num_classes=10):
+
         net = conv2d(images, 96, [2, 2], scope='conv1')
         net = max_pool2d(net, [2, 2], scope='maxpool1')
         net = fire_module(net, 16, 64, scope='fire2')
@@ -71,7 +72,8 @@ class Squeezenet_CIFAR(object):
                      activation_fn=None,
                      normalizer_fn=None,
                      scope='conv10')
-        logits = tf.squeeze(net, [2], name='logits')
+
+        logits = tf.squeeze(net, [1], name='logits')
         return logits
 
 
@@ -83,7 +85,7 @@ def _arg_scope(is_training, weight_decay, bn_decay):
                                       'fused': True,
                                       'decay': bn_decay}):
         with arg_scope([conv2d, avg_pool2d, max_pool2d, batch_norm],
-                       data_format='NCHW') as sc:
+                       data_format='NHWC') as sc:
                 return sc
 
 
