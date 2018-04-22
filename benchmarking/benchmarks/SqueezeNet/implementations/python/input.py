@@ -15,7 +15,7 @@ class Pipeline(object):
             images = []
             for x in range(1000):
                 images.append(tf.to_float(x_train[x]))
-                labels.append(tf.reshape(tf.one_hot(y_train[x], 10, dtype=tf.int32), [10]))
+                labels.append(tf.reshape(tf.one_hot(y_train[x], 10), [10]))
 
             dataset = tf.data.Dataset.from_tensor_slices((images,  labels))
             self.is_training = True

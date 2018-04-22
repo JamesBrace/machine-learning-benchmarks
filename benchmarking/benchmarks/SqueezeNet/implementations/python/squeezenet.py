@@ -73,7 +73,7 @@ class Squeezenet_CIFAR(object):
                      normalizer_fn=None,
                      scope='conv10')
 
-        logits = tf.squeeze(net, [1], name='logits')
+        logits = tf.squeeze(net, name='logits')
         return logits
 
 

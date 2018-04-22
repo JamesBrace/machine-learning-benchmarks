@@ -1,4 +1,3 @@
-import os
 import tensorflow as tf
 import input
 from squeezenet import Squeezenet_CIFAR
@@ -61,18 +60,8 @@ def runner(params):
             }
         )
 
-        '''Metrics'''
-        train_metrics = metrics.Metrics(
-            labels=labels,
-            clone_predictions=[clone.outputs['predictions']
-                               for clone in model_dp.clones],
-            device=deploy_config.variables_device(),
-            name='training'
-        )
-
         train_op = tf.group(
-            model_dp.train_op,
-            train_metrics.update_op
+            model_dp.train_op
         )
 
         '''Model Initialization'''
@@ -83,7 +72,7 @@ def runner(params):
 
         '''Main Loop'''
         for train_step in range(starting_step, max_train_steps):
-            sess.run(train_op, feed_dict=images)
+            sess.run(train_op)
 
 
 def _clone_fn(images,
@@ -96,8 +85,13 @@ def _clone_fn(images,
     images = images[clone_index]
     labels = labels[clone_index]
 
+    print(images)
+    print(labels)
+
     unscaled_logits = network.build(images, is_training)
-    tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=unscaled_logits)
+
+    print(unscaled_logits)
+    tf.losses.softmax_cross_entropy(onehot_labels=labels, logits=unscaled_logits)
     predictions = tf.argmax(unscaled_logits, 1, name='predictions')
     return {
         'predictions': predictions,
