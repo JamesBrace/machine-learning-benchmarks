@@ -1,0 +1,10 @@
+Usage: ostrich-browserify-compiler -f file1 -f file2 ... {OPTIONS}
+
+Concatenate file1,file2,... into a single entry file, then browserify this file. 
+
+Options:
+    -f file     File to concatenate
+    -b basedir  Base directory from which to resolve the relative modules
+    -o output   Output file for the bundle, defaults to stdout
+
+See the browserify documentation for the browserify options.

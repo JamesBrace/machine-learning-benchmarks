@@ -1,7 +1,6 @@
 import tensorflow as tf
 import input
 from squeezenet import Squeezenet_CIFAR
-import metrics
 import model_deploy
 
 
@@ -9,7 +8,7 @@ def runner(params):
     backend = params['backend']
     mode = params['mode']
 
-    max_train_steps = 1000
+    max_train_steps = 500
 
     with tf.Graph().as_default():
         network = Squeezenet_CIFAR()
@@ -29,7 +28,7 @@ def runner(params):
 
             images = []
             labels = []
-            for x in range(1000):
+            for x in range(64):
                 image, label = pipeline.data
                 images.append(image)
                 labels.append(label)
@@ -85,7 +84,7 @@ def _clone_fn(images,
     images = images[clone_index]
     labels = labels[clone_index]
 
-    print(images)
+    print(imaimages)
     print(labels)
 
     unscaled_logits = network.build(images, is_training)

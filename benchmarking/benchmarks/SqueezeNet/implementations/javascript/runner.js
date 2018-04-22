@@ -1,7 +1,7 @@
 import {SqueezeNet} from "./squeezenet";
 import * as squeeze from './squeezenet'
 
-async function runner (backend, mode){
+export async function runner (backend, mode){
     let model = new SqueezeNet();
     await squeeze.loadData();
 

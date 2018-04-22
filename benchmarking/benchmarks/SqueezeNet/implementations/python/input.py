@@ -13,7 +13,7 @@ class Pipeline(object):
         if type == 'train':
             labels = []
             images = []
-            for x in range(1000):
+            for x in range(64):
                 images.append(tf.to_float(x_train[x]))
                 labels.append(tf.reshape(tf.one_hot(y_train[x], 10), [10]))
 

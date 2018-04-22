@@ -5,9 +5,9 @@ var lib = require('ostrich-browser-run')
 
 var platform = os.platform()
 if (platform === 'darwin') {
-  lib.start('open -g -a firefox ')
+  lib.start('open -g -a firefox -headless ')
 } else if (platform === 'linux') {
-  lib.start('firefox ')
+  lib.start('firefox -headless ')
 } else {
   console.log('Unsupported platform ' + platform)
   process.exit(1)

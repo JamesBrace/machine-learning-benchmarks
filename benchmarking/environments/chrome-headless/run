@@ -5,9 +5,9 @@ var lib = require('ostrich-browser-run')
 
 var platform = os.platform()
 if (platform === 'darwin') {
-  lib.start('open -g -a Google\\ Chrome ')
+  lib.start('open -g -a Google\\ Chrome --headless')
 } else if (platform === 'linux') {
-  lib.start('google-chrome ')
+  lib.start('google-chrome --headless')
 } else {
   console.log('Unsupported platform ' + platform)
   process.exit(1)
