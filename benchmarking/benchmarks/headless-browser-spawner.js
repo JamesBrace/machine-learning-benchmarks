@@ -130,11 +130,11 @@ async function load_and_capture_firefox(url){
 
     await driver.get(`file://${path.resolve(__dirname, url)}`);
 
-    let el = await driver.wait(until.alertIsPresent(), 10000);
+    let el = await driver.wait(until.alertIsPresent(), 1000000000);
 
     const output = await el.getText();
 
-    console.log("output: ", output);
+    console.log("Output: ", output);
 
     await fs.appendFile("./output/firefox-output.txt", output, err => {
             if(err) return console.log(err);
