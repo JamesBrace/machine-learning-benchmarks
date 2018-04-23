@@ -83,10 +83,13 @@ function log_output(text){
 }
 
 (async ()=>{
+
+    console.log("Info: Started Benchmark");
+
     isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
     const browser = (isFirefox) ? 'firefox' :'chrome';
 
-    console.log(`Info: current browser is ${browser.toUpperCase()}`);
+    console.log(`Info: Current browser is ${browser.toUpperCase()}`);
 
     console.log("Info: Starting Benchmark");
 

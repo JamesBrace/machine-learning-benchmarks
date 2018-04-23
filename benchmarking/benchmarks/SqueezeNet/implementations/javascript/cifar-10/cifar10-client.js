@@ -1,36 +1,34 @@
 "use strict";
 
 export class CIFAR10 {
-
-    categories = ["airplane", "automobile", "bird", "cat", "deer", "dog", "frog", "horse", "ship", "truck"];
-
-    training = {
-        get: count => {
-            return fetch("/training.get", {method: "Post", body: JSON.stringify({count})})
-                .then(r => r.json())
-        },
-        length: () => {
-            return new Promise((resolve, reject) => {
-                fetch("/training.length").then(r => r.json())
-                .then(({length}) => resolve(length))
-            })
-        }
-    };
-
-    test = {
-        get: count => {
-            return fetch("/test.get", {method: "Post", body: JSON.stringify({count})})
-                .then(r => r.json())
-        },
-        length: () => {
-            return new Promise((resolve, reject) => {
-                fetch("/test.length").then(r => r.json())
-                .then(({length}) => resolve(length))
-            })
-        }
-    };
-
     constructor(){
+        this.categories = ["airplane", "automobile", "bird", "cat", "deer", "dog", "frog", "horse", "ship", "truck"];
+
+        this.training = {
+            get: count => {
+                return fetch("/training.get", {method: "Post", body: JSON.stringify({count})})
+                    .then(r => r.json())
+            },
+            length: () => {
+                return new Promise((resolve, reject) => {
+                    fetch("/training.length").then(r => r.json())
+                    .then(({length}) => resolve(length))
+                })
+            }
+        };
+
+        this.test = {
+            get: count => {
+                return fetch("/test.get", {method: "Post", body: JSON.stringify({count})})
+                    .then(r => r.json())
+            },
+            length: () => {
+                return new Promise((resolve, reject) => {
+                    fetch("/test.length").then(r => r.json())
+                    .then(({length}) => resolve(length))
+                })
+            }
+        };
         this.set_categories();
     }
 
