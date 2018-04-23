@@ -1,8 +1,5 @@
 import * as tf from '@tensorflow/tfjs';
 import {MnistData} from "./data";
-import 'babel-polyfill';
-
-const log = console.log;
 
 /*****************************
  *  CONSTANTS
