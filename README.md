@@ -1,6 +1,6 @@
 # Machine Learning Benchmarks: Server vs Browser
 
-The purpose of this repository is to start creating a collection of machine learning algorithms in both their server-side
+The purpose of this repository is to provide a collection of machine learning algorithms in both their server-side
 and browser-side implementations in order to gauge their relative performance. In the past few years there has been rapid
 development in browser-side deep learning libraries such as ConvNet.js, TensorFire, and Deeplearn.js (now Tensorflow.js).
 These libraries have allowed developers to tap into high-performance Machine Learning with minimial overhead, making Machine
@@ -8,29 +8,33 @@ Learning more accessible than ever. Each model in this repository contains both 
 as well as it's browser-side (written with Deeplearn) implementations and can be run with little-to-no setup!
 
 This repository has begun as an honours computer science project at McGill University, but I hope to see it grow over the
-next fews years as more state-of-the-art algorithms (and libraries) come out.
+next few years as more state-of-the-art algorithms (and libraries) come out.
 
 ## What's Included
-In each folder, there sits an out-of-the-box implementation of various machine learning algorithm. 
+In each folder sits out-of-the-box implementations of various machine learning algorithms. All models come in their
+python and javascript form and are direct translations of each other.
 
 Currently there are the following benchmarks:
 * **MNIST Convolutional Network** - this is the typical CNN you will find in most 'Get Started' tutorials. Nothing too
 fancy! Yet given it's relevancy I thought it fitting to be included. 
-* **SqueezeNet** - this latest state-of-the-art network records AlexNet-like performance, but used only a fraction of
+* **[SqueezeNet](https://arxiv.org/abs/1602.07360)** - this latest state-of-the-art network records AlexNet-like performance, but used only a fraction of
 the parameters. Because of this, it is a suitable target for devices that need to fetch models over a server, or limited 
 computational resources. Special thanks to @vonclites for his TensorFlow implementation. The DeepLearn version is a line-by-line
 translation of his code. 
 * **Utility Functions** - this includes a handful of utility functions needed to construct Neural Networks. This includes:
 ReLU activation (and all of its counterparts), the Conv2D layer function, and various reduction and unary function calls. 
 
+In addition to the source code of the models, I've included the benchmarking performed for the original project. Instructions
+for running them are including in their respective directories.
 
 ## What's Required
 As of now, the only requirements needed to run each successfully is:
 
 * [Python 3](https://www.python.org/downloads/) - needed to run the server-side implementation of the algorithms
 * [TensorFlow](https://www.tensorflow.org/) - the Deep Learning library used to construct all the models for the server-side code
-* [TypeScript](https://www.typescriptlang.org/) - all the browser-side code (except for MNIST) is written in TypeScript
-* [Browserify](http://browserify.org/) - is need to compile some of the TypeScript modules
+* [Node](https://nodejs.org/en/) - needed for NPM and running benchmarking scripts
+* [Yarn](https://yarnpkg.com/en/) - used to manage JavaScript implementation dependencies
+* [Parcel](https://parceljs.org/) - used to bundle JavaScript modules
 * and of course a modern browser (we suggest Chrome or FireFox) :)
 
 Each directory has a README with more specific instructions to run the code.
