@@ -1,0 +1,18 @@
+{
+  "name": "benchmark-spawner",
+  "version": "0.0.1",
+  "description": "Spawns benchmarks",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jamesbrace/machine-learning-benchmarks.git"
+  },
+  "license": "MIT",
+  "scripts": {
+    "benchmark": "node ./run-benchmarks.js"
+  },
+  "dependencies": {
+    "argparse": "^1.0.10",
+    "chalk": "^2.4.0",
+    "prompt": "^1.0.0"
+  }
+}
