@@ -17,7 +17,7 @@
   },
   "scripts": {
     "build": "yarn && parcel build runner.js",
-    "run-server": "./download-cifar.sh && cd cifar-10 && node cifar10-server.js",
+    "run-server": "./download-cifar.sh && cd cifar-10 && node cifar10-server.js"
   },
   "license": "Apache-2.0",
   "dependencies": {

@@ -144,3 +144,18 @@ in setup
 set backend 
 in set data 
 {"benchmark":"MNIST","backend":"gpu","implementation":"JavaScript","train":27931.899999966845,"test":1.9479999993927777} 
+leggo 
+leggo 
+leggo 
+JSHandle@object 
+leggo 
+window:  JSHandle@object 
+window:  JSHandle@object 
+leggo 
+poop 
+leggo 
+leggo 
+leggo 
+leggo 
+leggo 
+leggo 

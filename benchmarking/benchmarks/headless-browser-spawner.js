@@ -50,7 +50,7 @@ const puppeteer = require('puppeteer');
 const path_to_js = 'implementations/javascript';
 const urls = {
     mnist: `MNIST/${path_to_js}/index.html`,
-    squeezenet: "dasd",
+    squeezenet: `SqueezeNet/${path_to_js}/index.html`,
     utilities: "sadasd"
 };
 
@@ -93,7 +93,7 @@ async function load_and_capture_chrome(url){
         ]
     });
     const page = await browser.newPage();
-    const watchDog = page.waitForFunction('window.name === "Close"', {timeout: 0});
+    const watchDog = page.waitForFunction('document.title === "Close"', {timeout: 0});
 
     page.on('console', msg => {
         msg.args().forEach(arg => {
@@ -113,6 +113,11 @@ async function load_and_capture_chrome(url){
     await browser.close();
 }
 
+/**
+ * Opens headless Firefox browser and waits for an alert to be present
+ * @param url
+ * @return {Promise<void>}
+ */
 async function load_and_capture_firefox(url){
     const options = new firefox.Options();
     options.headless();
@@ -125,15 +130,12 @@ async function load_and_capture_firefox(url){
 
     await driver.get(`file://${path.resolve(__dirname, url)}`);
 
-    console.log("Fetched page");
+    let el = await driver.wait(until.alertIsPresent(), 10000);
 
-    await driver.wait(until.titleIs('Done'), 10000);
-
-    console.log("here 2");
-
-    const el = driver.findElement(By.id('output'));
     const output = await el.getText();
-    console.log(output);
+
+    console.log("output: ", output);
+
     await fs.appendFile("./output/firefox-output.txt", output, err => {
             if(err) return console.log(err);
     });

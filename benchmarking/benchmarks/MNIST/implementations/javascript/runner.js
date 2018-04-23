@@ -4,10 +4,7 @@ import * as tf from '@tensorflow/tfjs';
 /**
  * BROWSER CONFIGURATION
  */
-
-let isChrome = !!window.chrome && !!window.chrome.webstore;
-const browser = (isChrome) ? 'chrome' : 'firefox';
-log(`Info: current browser is ${browser.toUpperCase()}`);
+let isFirefox = false;
 
 async function runner(backend) {
 
@@ -24,17 +21,17 @@ async function runner(backend) {
 
     if(backend === 'gpu') {
         // Warmup
-        log("Info: Warming up gpu");
+        console.log("Info: Warming up gpu");
         await benchmark.train();
     }
 
-    log("Info: Starting train benchmark");
+    console.log("Info: Starting train benchmark");
 
     start = performance.now();
     await benchmark.train();
     end = performance.now();
 
-    log("Info: Finished train benchmark");
+    console.log("Info: Finished train benchmark");
 
     let train_time = end - start;
 
@@ -43,7 +40,7 @@ async function runner(backend) {
         time: train_time,
     }));
 
-    let batch = mnist.nextBatch('test', 64);
+    let batch = mnist.nextBatch('test', 100);
     const iterations = 50;
 
     console.log("Info: Starting prediction testing with 50 iterations");
@@ -74,28 +71,30 @@ async function runner(backend) {
  * been completed
  * @param text
  */
-function log(text){
-    if(isChrome){
-        console.log(text)
+function log_output(text){
+
+    if(!isFirefox){
+        console.log(text);
     } else {
-        const output = document.getElementById('output');
-        output.innerText = text;
-         // Used to stop browser spawner in FireFox
-        document.title = "Done"
+        alert(text);
     }
+
+    // Trigger chrome to close
+    document.title = 'Close'
 }
 
 
 (async ()=>{
-    log("Info: Starting Benchmark");
-    document.title = "Done";
+    isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+    const browser = (isFirefox) ? 'firefox' :'chrome';
+
+    console.log(`Info: current browser is ${browser.toUpperCase()}`);
+
+    console.log("Info: Starting Benchmark");
 
     let result = await runner('gpu');
-    log(JSON.stringify(result));
 
     console.log("Info: Finished Benchmark");
 
-    // Used to stop browser spawner in Chrome
-    window.name = "Close";
-
+    log_output(JSON.stringify(result));
 })();
