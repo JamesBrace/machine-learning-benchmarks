@@ -1,6 +1,6 @@
 import {SqueezeNet} from "./squeezenet";
 import * as squeeze from './squeezenet'
-import * as dl from 'deeplearn'
+import * as tf from '@tensorflow/tfjs';
 
 /**
  * BROWSER CONFIGURATION
@@ -11,10 +11,10 @@ export async function runner (backend){
 
     console.log("Info: Setting up benchmark");
 
-    let model = new SqueezeNet();
+    const model = new SqueezeNet();
 
     console.log("Info: Model created");
-    console.log(`Info: Backend being used is '${dl.getBackend()}'`);
+    console.log(`Info: Backend being used is '${tf.getBackend()}'`);
     console.log('Info: Loading data');
 
     await squeeze.loadData();
