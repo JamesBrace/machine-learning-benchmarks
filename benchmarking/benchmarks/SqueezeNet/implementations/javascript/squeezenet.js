@@ -16,7 +16,7 @@ const IMAGE_SIZE = 32;
 const IMAGE_DEPTH = 3;
 
 let data = {
-    training:
+    train:
         {
             images: [],
             labels: [],
