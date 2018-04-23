@@ -10,7 +10,7 @@ async function runner(backend) {
 
     console.log("Info: Setting up benchmark");
 
-    let benchmark = await mnist.setup(backend);
+    let benchmark = await mnist.init(backend);
 
     console.log("Info: Model created");
 

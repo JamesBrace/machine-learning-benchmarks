@@ -19,12 +19,11 @@ const LABELS_SIZE = 10;
 export class MNIST {
 
     constructor(){
-        this.model = {};
-        this.create_model();
+        this.model = MNIST.create_model();
     }
 
     // Create the model and assigns it to the global model property
-    create_model() {
+    static create_model() {
         const optimizer = tf.train.adam(LEARNING_RATE);
         const model = tf.sequential();
 
@@ -64,7 +63,7 @@ export class MNIST {
             metrics: ['accuracy'],
         });
 
-        this.model = model;
+        return model
     }
 
     // Train the model.
@@ -92,14 +91,14 @@ export function nextBatch(type, batch_size = BATCH_SIZE) {
 }
 
 // Sets the data in the data.js file
-export async function set_data(){
+async function set_data(){
     await d.load()
 }
 
 /*****************************
  *  SETUP
  ****************************/
-export async function setup(backend) {
+export async function init(backend) {
     // Set backend to run on either CPU or GPU
     if(backend === 'gpu' || backend === 'cpu'){
         (backend === 'gpu') ? tf.setBackend('webgl') : tf.setBackend('cpu');

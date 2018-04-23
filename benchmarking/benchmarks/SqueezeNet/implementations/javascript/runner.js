@@ -8,18 +8,12 @@ import * as tf from '@tensorflow/tfjs';
 let isFirefox = false;
 
 export async function runner (backend){
-
     console.log("Info: Setting up benchmark");
 
-    const model = new SqueezeNet();
+    const model = squeeze.init(backend);
 
     console.log("Info: Model created");
     console.log(`Info: Backend being used is '${tf.getBackend()}'`);
-    console.log('Info: Loading data');
-
-    await squeeze.loadData();
-
-    console.log('Info: Data loaded');
 
     if(backend === 'gpu') {
         // Warmup
@@ -42,7 +36,8 @@ export async function runner (backend){
         time: train_time,
     }));
 
-    let batch = model.nextBatch('test', 100);
+    let batch_size = 100;
+    let batch = model.nextBatch('test', batch_size);
     const iterations = 50;
 
     console.log("Info: Starting prediction testing with 50 iterations");
@@ -50,7 +45,7 @@ export async function runner (backend){
     let start_test = performance.now();
 
     for(const x of [...Array(iterations).keys()]) {
-        await model.predict(batch);
+        await model.predict(batch, batch_size);
     }
 
     let end_test = performance.now();
@@ -69,7 +64,7 @@ export async function runner (backend){
 
 /**
  * Need to do work around for Firefox since it currently doesn't support Seleniums logging API. What I do here
- * is render the output into a div and then change the title of the page to signify to Selenium that the task has
+ * is render the output into a window alert and then change the title of the page to signify to Selenium that the task has
  * been completed
  * @param text
  */
@@ -96,7 +91,8 @@ function log_output(text){
 
     console.log("Info: Starting Benchmark");
 
-    let result = await runner('gpu');
+    let backend = document.title;
+    let result = await runner(backend);
 
     console.log("Info: Finished Benchmark");
 

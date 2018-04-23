@@ -16,11 +16,12 @@ const IMAGE_SIZE = 32;
 const IMAGE_DEPTH = 3;
 
 let data = {};
+
 /**
  * Loads data into memory
  * @return {Promise<void>}
  */
-export async function loadData() {
+async function loadData() {
     const cifar = new CIFAR10();
     const training = await cifar.training.get(TRAINING_SIZE/100);
     const test = await cifar.test.get(TEST_SIZE/100);
@@ -123,8 +124,8 @@ export class SqueezeNet {
     }
 
     // Predict the digit number from a batch of input images.
-    async predict(batch){
-        await this.model.predict(batch.images.reshape([batch.length, IMAGE_SIZE, IMAGE_SIZE, IMAGE_DEPTH]),
+    async predict(batch, length){
+        await this.model.predict(batch.images.reshape([length , IMAGE_SIZE, IMAGE_SIZE, IMAGE_DEPTH]),
             {batchSize: batch.length});
     }
 
@@ -141,5 +142,20 @@ export class SqueezeNet {
         return {images: tf.tensor(shuffled.map((obj) => obj.img).slice(0, size)),
             labels: tf.tensor(shuffled.map((obj) => obj.label).slice(0, size))}
     }
+}
+
+/*****************************
+ *  SETUP
+ ****************************/
+export async function init(backend) {
+    // Set backend to run on either CPU or GPU
+    if(backend === 'gpu' || backend === 'cpu'){
+        (backend === 'gpu') ? tf.setBackend('webgl') : tf.setBackend('cpu');
+    } else {
+        throw new Error(`Invalid backend parameter: ${backend}. Please specify either 'cpu' or 'gpu'`)
+    }
+
+    await loadData();
+    return new SqueezeNet()
 }
 
