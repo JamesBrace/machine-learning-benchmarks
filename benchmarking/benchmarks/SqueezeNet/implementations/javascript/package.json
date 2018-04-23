@@ -16,7 +16,7 @@
     "parcel-bundler": "^1.7.1"
   },
   "scripts": {
-    "build": "yarn && parcel build runner.js --no-cache --no-minify --no-source-maps",
+    "build": "yarn && parcel build runner.js --no-cache --no-source-maps",
     "run-server": "./download-cifar.sh && cd cifar-10 && node cifar10-server.js"
   },
   "license": "Apache-2.0",
