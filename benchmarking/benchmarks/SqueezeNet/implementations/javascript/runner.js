@@ -66,14 +66,14 @@ export async function runner (backend){
  * Need to do work around for Firefox since it currently doesn't support Seleniums logging API. What I do here
  * is render the output into a window alert and then change the title of the page to signify to Selenium that the task has
  * been completed
- * @param text
+ * @param output
  */
-function log_output(text){
+function log_output(output){
 
     if(!isFirefox){
-        console.log(text);
+        console.log(output);
     } else {
-        alert(text);
+        alert(output);
     }
 
     // Trigger chrome to close

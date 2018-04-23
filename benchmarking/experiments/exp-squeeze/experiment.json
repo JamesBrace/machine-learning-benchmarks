@@ -1,8 +1,0 @@
-{
-    "type": "experiment",
-    "short-name": "poop",
-    "version": "2.0.0",
-    "input-size":"small",
-    "iterations": 50,
-    "environments":["chrome-headless", "firefox-headless"]
-}
