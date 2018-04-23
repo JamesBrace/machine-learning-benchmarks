@@ -50,7 +50,7 @@ const puppeteer = require('puppeteer');
 const path_to_js = 'implementations/javascript';
 const urls = {
     mnist: `MNIST/${path_to_js}/index.html`,
-    squeezenet: `SqueezeNet/${path_to_js}/index.html`,
+    squeezenet: `localhost:1337`,
     utilities: "sadasd"
 };
 
