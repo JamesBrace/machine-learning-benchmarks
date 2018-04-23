@@ -33,9 +33,10 @@ const args = parser.parseArgs();
  */
 require('geckodriver');
 
-const wd = require('selenium-webdriver');
+const {Builder, By, until} = require('selenium-webdriver');
 const path = require('path');
 const firefox = require('selenium-webdriver/firefox');
+const path_to_firefox = "/Applications/Firefox.app/Contents/MacOS/firefox-bin";
 
 /**
  * Chrome Headless Setup
@@ -114,31 +115,30 @@ async function load_and_capture_chrome(url){
 
 async function load_and_capture_firefox(url){
     const options = new firefox.Options();
-    const prefs = new wd.logging.Preferences();
-    let driver;
+    options.headless();
+    options.setBinary(path_to_firefox);
 
-    prefs.setLevel(wd.logging.Type.BROWSER, wd.logging.Level.ALL);
-    options.setLoggingPrefs(prefs);
-
-    const binary = new firefox.Binary(firefox.Channel.RELEASE);
-    binary.addArguments('-headless');
-
-    options.setBinary(binary);
-
-    driver = new wd.Builder()
+    const driver = await new Builder()
         .forBrowser('firefox')
         .setFirefoxOptions(options)
         .build();
 
-    driver
-        .get(`file://${path.resolve(__dirname, url)}`)
-        .then(() => driver.manage().logs().get(wd.logging.Type.BROWSER))
-        .then((logs) => {
-            fs.appendFile("./output/firefox-output.txt", logs, err => {
-                if(err) return console.log(err);
-            });
-        })
-        .then(() => driver.quit());
+    await driver.get(`file://${path.resolve(__dirname, url)}`);
+
+    console.log("Fetched page");
+
+    await driver.wait(until.titleIs('Done'), 10000);
+
+    console.log("here 2");
+
+    const el = driver.findElement(By.id('output'));
+    const output = await el.getText();
+    console.log(output);
+    await fs.appendFile("./output/firefox-output.txt", output, err => {
+            if(err) return console.log(err);
+    });
+
+    await driver.quit()
 }
 
 ////////////////////////////////////////////////////////////////////

@@ -1,7 +1,14 @@
 import * as mnist from './mnist';
 import * as tf from '@tensorflow/tfjs';
 
-const log = console.log;
+/**
+ * BROWSER CONFIGURATION
+ */
+
+let isChrome = !!window.chrome && !!window.chrome.webstore;
+const browser = (isChrome) ? 'chrome' : 'firefox';
+log(`Info: current browser is ${browser.toUpperCase()}`);
+
 async function runner(backend) {
 
     console.log("Info: Setting up benchmark");
@@ -61,19 +68,34 @@ async function runner(backend) {
     return {benchmark: 'MNIST', backend: backend, implementation: 'JavaScript', train: train_time, test: test_time}
 }
 
+/**
+ * Need to do work around for Firefox since it currently doesn't support Seleniums logging API. What I do here
+ * is render the output into a div and then change the title of the page to signify to Selenium that the task has
+ * been completed
+ * @param text
+ */
+function log(text){
+    if(isChrome){
+        console.log(text)
+    } else {
+        const output = document.getElementById('output');
+        output.innerText = text;
+         // Used to stop browser spawner in FireFox
+        document.title = "Done"
+    }
+}
+
 
 (async ()=>{
-    console.log("Info: Starting Benchmark");
+    log("Info: Starting Benchmark");
+    document.title = "Done";
 
-    for(const x of [...Array(10).keys()]) {
-        let result = await runner('gpu');
-        console.log(JSON.stringify(result))
-    }
+    let result = await runner('gpu');
+    log(JSON.stringify(result));
 
     console.log("Info: Finished Benchmark");
 
-    // Used to stop browser spawner
-    window.name = "Close"
-
+    // Used to stop browser spawner in Chrome
+    window.name = "Close";
 
 })();
