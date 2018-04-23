@@ -15,31 +15,18 @@ const TEST_SIZE = 2000;
 const IMAGE_SIZE = 32;
 const IMAGE_DEPTH = 3;
 
-let data = {
-    train:
-        {
-            images: [],
-            labels: [],
-            num_images: 0
-        },
-    test: {
-        images: [],
-        labels: [],
-        num_images: 0
-    }
-};
-
+let data = {};
 /**
  * Loads data into memory
  * @return {Promise<void>}
  */
 export async function loadData() {
     const cifar = new CIFAR10();
-    const training = await cifar.training.get(TRAINING_SIZE);
-    const test = await cifar.test.get(TEST_SIZE);
+    const training = await cifar.training.get(TRAINING_SIZE/100);
+    const test = await cifar.test.get(TEST_SIZE/100);
 
     data = {
-        training: {
+        train: {
             images: training.map((obj) => obj.input),
             labels: training.map((obj) => obj.output),
             num_images: training.length,
@@ -137,7 +124,7 @@ export class SqueezeNet {
 
     // Predict the digit number from a batch of input images.
     async predict(batch){
-        await this.model.predict(batch.images.reshape([BATCH_SIZE, IMAGE_SIZE, IMAGE_SIZE, IMAGE_DEPTH]),
+        await this.model.predict(batch.images.reshape([batch.length, IMAGE_SIZE, IMAGE_SIZE, IMAGE_DEPTH]),
             {batchSize: batch.length});
     }
 
