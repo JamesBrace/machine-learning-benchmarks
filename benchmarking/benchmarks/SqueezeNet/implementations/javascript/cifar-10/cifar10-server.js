@@ -13,7 +13,7 @@ http.createServer(function (request, response) {
     var jsonData = "";
     var data = "";
     path = path === "/" ? "../index.html" : path;
-    path = ["/cifar-10/cifar10-client.min.js", "/dist/bundle.js"].includes(path) ?  ".." + path : path;
+    path = ["/cifar-10/cifar10-client.min.js", "/dist/runner.js"].includes(path) ?  ".." + path : path;
 
     request.on("data", function (chunk) {
         return jsonData += chunk;

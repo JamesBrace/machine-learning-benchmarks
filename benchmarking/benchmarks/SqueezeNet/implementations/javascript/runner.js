@@ -15,8 +15,11 @@ export async function runner (backend){
 
     console.log("Info: Model created");
     console.log(`Info: Backend being used is '${dl.getBackend()}'`);
+    console.log('Info: Loading data');
 
     await squeeze.loadData();
+
+    console.log('Info: Data loaded');
 
     if(backend === 'gpu') {
         // Warmup
