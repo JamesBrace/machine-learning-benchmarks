@@ -10,8 +10,8 @@ const BATCH_SIZE = 64;
 const TRAIN_STEPS = 100;
 
 // Data constants
-const TRAINING_SIZE = 8000;
-const TEST_SIZE = 2000;
+const TRAINING_SIZE = 50000;
+const TEST_SIZE = 10000;
 const IMAGE_SIZE = 32;
 const IMAGE_DEPTH = 3;
 
@@ -21,10 +21,12 @@ let data = {};
  * Loads data into memory
  * @return {Promise<void>}
  */
-async function loadData() {
+async function loadData(training_size, test_size) {
     const cifar = new CIFAR10();
-    const training = await cifar.training.get(TRAINING_SIZE/100);
-    const test = await cifar.test.get(TEST_SIZE/100);
+
+    const training = await cifar.training.get(training_size);
+
+    const test = await cifar.test.get(test_size);
 
     data = {
         train: {
@@ -114,11 +116,11 @@ export class SqueezeNet {
     }
 
     // Train the model.
-    async train() {
-        for (let i = 0; i < TRAIN_STEPS; i++) {
-            const batch = this.nextBatch('train');
-            await this.model.fit(batch.images.reshape([BATCH_SIZE, IMAGE_SIZE, IMAGE_SIZE, IMAGE_DEPTH]),
-                batch.labels, {batchSize: BATCH_SIZE, epochs: 1});
+    async train(set, set_size = BATCH_SIZE, train_steps = TRAIN_STEPS) {
+        for (let i = 0; i < train_steps; i++) {
+            console.log(`Info: epoch ${i}`);
+            await this.model.fit(set.images.reshape([set_size, IMAGE_SIZE, IMAGE_SIZE, IMAGE_DEPTH]),
+                set.labels, {batchSize: BATCH_SIZE, epochs: 1});
             await tf.nextFrame();
         }
     }
@@ -134,11 +136,21 @@ export class SqueezeNet {
      * @return {{images[]; labels[]}}
      */
     nextBatch(type, size = BATCH_SIZE){
+
+        console.log(`Info: Getting ${type} of size ${size}`);
+
         let mapped = data[type].images.map((img, index) => {
                 return {img: img, label: data[type].labels[index]}
             });
 
+        console.log("Info: ", mapped);
+
+        console.log(`Info: mapped data`);
+
         const shuffled = mapped.sort(() => .5 - Math.random());// shuffle
+
+        console.log(`Info: shuffled data`);
+
         return {images: tf.tensor(shuffled.map((obj) => obj.img).slice(0, size)),
             labels: tf.tensor(shuffled.map((obj) => obj.label).slice(0, size))}
     }
@@ -147,7 +159,7 @@ export class SqueezeNet {
 /*****************************
  *  SETUP
  ****************************/
-export async function init(backend) {
+export async function init(backend, training_size = TRAINING_SIZE, test_size = TEST_SIZE) {
     // Set backend to run on either CPU or GPU
     if(backend === 'gpu' || backend === 'cpu'){
         (backend === 'gpu') ? tf.setBackend('webgl') : tf.setBackend('cpu');
@@ -155,7 +167,7 @@ export async function init(backend) {
         throw new Error(`Invalid backend parameter: ${backend}. Please specify either 'cpu' or 'gpu'`)
     }
 
-    await loadData();
+    await loadData(training_size, test_size);
     return new SqueezeNet()
 }
 

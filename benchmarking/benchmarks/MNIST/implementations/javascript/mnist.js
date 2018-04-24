@@ -15,6 +15,8 @@ const TRAIN_STEPS = 100;
 // Data constants.
 const IMAGE_SIZE = 28;
 const LABELS_SIZE = 10;
+const TRAIN_SIZE = 55000;
+const TEST_SIZE = 10000;
 
 export class MNIST {
 
@@ -67,17 +69,16 @@ export class MNIST {
     }
 
     // Train the model.
-    async train() {
-        for (let i = 0; i < TRAIN_STEPS; i++) {
-            const batch = nextBatch('train');
-            await this.model.fit(batch.images.reshape([BATCH_SIZE, 28, 28, 1]), batch.labels, {batchSize: BATCH_SIZE, epochs: 1});
+    async train(batch, train_steps = TRAIN_STEPS) {
+        for (let i = 0; i < train_steps; i++) {
+            await this.model.fit(batch.images.reshape([TRAIN_SIZE, 28, 28, 1]), batch.labels, {batchSize: BATCH_SIZE, epochs: 1});
             await tf.nextFrame();
         }
     }
 
     // Predict the digit number from a batch of input images.
     async predict(batch){
-        await this.model.predict(batch.images.reshape([BATCH_SIZE, 28, 28, 1]), {batchSize: BATCH_SIZE});
+        await this.model.predict(batch.images.reshape([TEST_SIZE, 28, 28, 1]), {batchSize: BATCH_SIZE});
     }
 }
 
@@ -86,8 +87,8 @@ export class MNIST {
  * HELPERS
  ****************************/
 // Gets the next shuffled training batch
-export function nextBatch(type, batch_size = BATCH_SIZE) {
-    return (type === 'train') ? d.nextTrainBatch(batch_size) : d.nextTestBatch(batch_size);
+export function nextBatch(type) {
+    return (type === 'train') ? d.nextTrainBatch(55000) : d.nextTestBatch(10000);
 }
 
 // Sets the data in the data.js file

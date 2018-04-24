@@ -6,6 +6,12 @@ import * as tf from '@tensorflow/tfjs';
  */
 let isFirefox = false;
 
+/**
+ * CONSTANTS
+ */
+const TRAIN_STEPS = 10;
+const WARMUP_STEPS = 1;
+
 async function runner(backend) {
 
     console.log("Info: Setting up benchmark");
@@ -19,43 +25,43 @@ async function runner(backend) {
 
     console.log(`Info: Backend being used is '${tf.getBackend()}'`);
 
+    let train_batch = mnist.nextBatch('train');
+
     if(backend === 'gpu') {
         // Warmup
-        console.log("Info: Warming up gpu");
-        await benchmark.train();
+        console.log(`Info: Warming up gpu with ${WARMUP_STEPS} iterations`);
+        await benchmark.train(train_batch, WARMUP_STEPS);
     }
 
-    console.log("Info: Starting train benchmark");
+    console.log(`Info: Starting train benchmark with ${TRAIN_STEPS} epochs`);
 
     start = performance.now();
-    await benchmark.train();
+    await benchmark.train(train_batch, TRAIN_STEPS);
     end = performance.now();
+
+    // Clear memory!!
+    train_batch = [];
 
     console.log("Info: Finished train benchmark");
 
-    let train_time = end - start;
+    let train_time = end - start / TRAIN_STEPS * 1000;
 
     console.log("Info: " + JSON.stringify({
         options: `train( ${backend} )`,
         time: train_time,
     }));
 
-    let batch = mnist.nextBatch('test', 64);
-    const iterations = 50;
+    let batch = mnist.nextBatch('test');
 
-    console.log(`Info: Starting prediction testing with ${iterations} iterations`);
+    console.log(`Info: Starting prediction testing`);
 
     let start_test = performance.now();
-
-    for(const x of [...Array(iterations).keys()]) {
-        await benchmark.predict(batch);
-    }
-
+    await benchmark.predict(batch);
     let end_test = performance.now();
 
     console.log("Info: Finished prediction testing");
 
-    let test_time = (end_test - start_test)/iterations;
+    let test_time = end_test - start_test;
 
     console.log("Info: " + JSON.stringify({
             options: `test( ${backend} )`,

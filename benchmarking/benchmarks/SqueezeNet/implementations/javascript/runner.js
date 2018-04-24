@@ -7,51 +7,59 @@ import * as tf from '@tensorflow/tfjs';
  */
 let isFirefox = false;
 
+
+/**
+ * Constants
+ */
+const TRAIN_SIZE = 5000;
+const TEST_SIZE = 1000;
+
 export async function runner (backend){
-    console.log("Info: Setting up benchmark");
+    console.log("Info: Setting up model and loading data from server");
 
-    const model = squeeze.init(backend);
+    const model = await squeeze.init(backend, TRAIN_SIZE, TEST_SIZE);
 
-    console.log("Info: Model created");
+    console.log("Info: Model created", model);
     console.log(`Info: Backend being used is '${tf.getBackend()}'`);
+
+    let train_set =  model.nextBatch('train', TRAIN_SIZE);
 
     if(backend === 'gpu') {
         // Warmup
         console.log("Info: Warming up gpu");
-        await model.train();
+        await model.train(train_set, TRAIN_SIZE, 1);
     }
 
     console.log("Info: Starting train benchmark");
 
     let start = performance.now();
-    await model.train();
+    await model.train(train_set, TRAIN_SIZE, 10);
     let end = performance.now();
+
+    // Clear training set from memory!!
+    train_set = [];
 
     console.log("Info: Finished train benchmark");
 
-    let train_time = (end - start);
+    let train_time = end - start;
 
     console.log("Info: " + JSON.stringify({
         options: `train( ${backend} )`,
         time: train_time,
     }));
 
-    let batch_size = 100;
-    let batch = model.nextBatch('test', batch_size);
-    const iterations = 50;
+    let test_set = model.nextBatch('test', TEST_SIZE);
 
-    console.log("Info: Starting prediction testing with 50 iterations");
+    console.log("Info: Starting prediction testing");
 
     let start_test = performance.now();
 
-    for(const x of [...Array(iterations).keys()]) {
-        await model.predict(batch, batch_size);
-    }
+    await model.predict(test_set, TEST_SIZE);
 
     let end_test = performance.now();
     console.log("Info: Finished prediction testing");
 
-    let test_time = (end_test - start_test)/iterations;
+    let test_time = end_test - start_test;
 
     console.log("Info: " + JSON.stringify({
             options: `test( ${backend} )`,
