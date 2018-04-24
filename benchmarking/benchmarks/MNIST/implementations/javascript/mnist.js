@@ -15,7 +15,7 @@ const TRAIN_STEPS = 100;
 // Data constants.
 const IMAGE_SIZE = 28;
 const LABELS_SIZE = 10;
-const TRAIN_SIZE = 55000;
+const TRAIN_SIZE = 50000;
 const TEST_SIZE = 10000;
 
 export class MNIST {

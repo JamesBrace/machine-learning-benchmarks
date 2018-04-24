@@ -8,9 +8,15 @@ import dataset
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
 
+"""""""""""
+CONSTANTS
+"""""""""""
+TRAIN_SIZE = 50000
+TEST_SIZE = 10000
+
 
 class MNIST:
-    def __init__(self, backend, batch_size=64, train_epochs=1, test_size=100):
+    def __init__(self, backend, batch_size=64, train_epochs=1, train_size=TRAIN_SIZE, test_size=TEST_SIZE):
         self.train_data = dataset.train("/tmp/mnist_data")
         self.test_data = dataset.test("/tmp/mnist_data")
 
@@ -27,8 +33,8 @@ class MNIST:
             })
 
         self.train_input_fn = tf.estimator.inputs.numpy_input_fn(
-            x={"x": self.train_data['images']},
-            y=self.train_data['labels'],
+            x={"x": self.train_data['images'][:train_size]},
+            y=self.train_data['labels'][:train_size],
             batch_size=batch_size,
             num_epochs=train_epochs,
             shuffle=True)
@@ -36,18 +42,15 @@ class MNIST:
         # Predict test set
         self.pred_input_fn = tf.estimator.inputs.numpy_input_fn(
             x={"x": self.test_data['images'][:test_size]},
-            shuffle=False
+            shuffle=False,
+            batch_size=batch_size,
         )
 
     @staticmethod
     def cnn_model_fn(features, labels, mode, params):
         with tf.device(params['backend']):
 
-            # Input Layer
-            if params['backend'] == "/cpu:0":
-                input_layer = tf.reshape(features["x"], [-1, 28, 28, 1])
-            else:
-                input_layer = tf.reshape(features["x"], [-1, 1, 28, 28])
+            input_layer = tf.reshape(features["x"], [-1, 28, 28, 1])
 
             '''
             Convolutional Layer #1
@@ -159,8 +162,8 @@ class MNIST:
         self.classifier.predict(input_fn=self.pred_input_fn)
 
 
-def init(backend):
-    m = MNIST(backend)
+def init(backend, train_size=TRAIN_SIZE, test_size=TEST_SIZE):
+    m = MNIST(backend, train_size, test_size)
     return m
 
 

@@ -13,13 +13,13 @@ const valid_environments = ['python', 'chrome', 'firefox'];
 const valid_backends = ['gpu', 'cpu'];
 const default_iterations = 20;
 
-
 const benchmark_dir = 'benchmarks';
 const impl_dir = 'implementations';
 const python_dir = 'python';
 const js_dir = 'javascript';
 const current_dir = __dirname;
 const spawner_url = `${current_dir}/headless-browser-spawner.js`;
+const output_dir = `${current_dir}/../output`;
 
 const benchmark_mapping = {
     mnist: `${benchmark_dir}/MNIST/`,
@@ -210,7 +210,7 @@ tests_performing.forEach(benchmark => {
             log(chalk.bgMagenta(`Running with backend: ${backend}`));
 
             // The name of the file to have results outputted to
-            const output_file = `${environ}-${backend}-${Math.floor(Date.now() / 1000)}.txt`;
+            const output_file = `${output_dir}/${benchmark}/${environ}-${backend}-${Math.floor(Date.now() / 1000)}.txt`;
 
             for(let x = 0; x < iterations; x++) {
                 run_benchmark(benchmark, environ, output_file, backend);
@@ -238,11 +238,12 @@ tests_performing.forEach(benchmark => {
  * @param env
  * @param benchmark
  * @param output_file
+ * @param backend
  */
 function run_benchmark(benchmark, env, output_file, backend){
     switch (env) {
         case 'python':
-            run_benchmark_in_python(benchmark, output_file, backend);
+            run_benchmark_in_python(benchmark, backend, output_file);
             break;
         case 'chrome':
         case 'firefox':
@@ -257,9 +258,11 @@ function run_benchmark(benchmark, env, output_file, backend){
 /**
  * Calls bash command for running a benchmark in python
  * @param benchmark
+ * @param backend
+ * @param output_file
  */
-function run_benchmark_in_python(benchmark) {
-    const runner = `python ${current_dir}/../${benchmark_mapping[benchmark]}/${impl_dir}/${python_dir}/runner.py`;
+function run_benchmark_in_python(benchmark, backend, output_file) {
+    const runner = `python ${current_dir}/../${benchmark_mapping[benchmark]}/${impl_dir}/${python_dir}/runner.py --backend ${backend} --output ${output_file}`;
     run_cmd(runner)
 }
 
@@ -269,6 +272,7 @@ function run_benchmark_in_python(benchmark) {
  * @param benchmark
  * @param browser
  * @param output_file
+ * @param backend
  */
 function run_benchmark_in_browser(benchmark, browser, output_file, backend){
     const runner = `node ${spawner_url} -t ${benchmark} -b ${browser} -o ${output_file} -be ${backend}`;

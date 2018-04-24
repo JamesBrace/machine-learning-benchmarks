@@ -23,13 +23,13 @@ def check_image_file_header(filename):
         magic = read32(f)
         rows = read32(f)
         cols = read32(f)
-        if magic != 2051:
-            raise ValueError('Invalid magic number %d in MNIST file %s' % (magic,
-                                                                           f.name))
-        if rows != 28 or cols != 28:
-            raise ValueError(
-                'Invalid MNIST file %s: Expected 28x28 images, found %dx%d' %
-                (f.name, rows, cols))
+        # if magic != 2051:
+        #     raise ValueError('Invalid magic number %d in MNIST file %s' % (magic,
+        #                                                                    f.name))
+        # if rows != 28 or cols != 28:
+        #     raise ValueError(
+        #         'Invalid MNIST file %s: Expected 28x28 images, found %dx%d' %
+        #         (f.name, rows, cols))
 
 
 def check_labels_file_header(filename):

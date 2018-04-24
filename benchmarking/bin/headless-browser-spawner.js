@@ -44,7 +44,7 @@ parser.addArgument(
 const args = parser.parseArgs();
 
 // The relative location of the output file
-const file = `../output/${args.test}/${args.output}`;
+// const file = `../output/${args.test}/${args.output}`;
 
 let backend;
 if (args.backend === 'gpu' || args.backend === 'cpu'){
@@ -64,7 +64,7 @@ const firefox = require('selenium-webdriver/firefox');
 const path_to_firefox = "/Applications/Firefox.app/Contents/MacOS/firefox-bin";
 
 // The global path to output file which is used by the program
-const file_url = `${path.resolve(__dirname, file)}`;
+const file_url = args.output;
 
 /**
  * Chrome Headless Setup
