@@ -2,13 +2,44 @@ import tensorflow as tf
 import input
 from squeezenet import Squeezenet_CIFAR
 import model_deploy
+import mnist
+import time
+import json
+import argparse
+
+"""
+Arguments 
+"""
+parser = argparse.ArgumentParser(description='Runner script for python implementation of MNIST CNN.')
+parser.add_argument(
+    '--backend',
+    type=str,
+    choices=['cpu', 'gpu'],
+    required=True,
+    help=''' Backend to for model be ran on. Either 'gpu' or 'cpu' '''
+)
+parser.add_argument(
+    '--output',
+    type=str,
+    required=True,
+    help=''' Output file name for the benchmark results '''
+)
+
+
+"""
+CONSTANTS
+"""
+WARMUP_STEPS = 1
+TRAINING_STEPS = 5
+TRAINING_SIZE = 10000
+TEST_SIZE = 1000
 
 
 def runner(params):
     backend = params['backend']
-    mode = params['mode']
+    mode = params['output']
 
-    max_train_steps = 500
+    max_train_steps = TRAINING_STEPS
 
     with tf.Graph().as_default():
         network = Squeezenet_CIFAR()
@@ -84,7 +115,7 @@ def _clone_fn(images,
     images = images[clone_index]
     labels = labels[clone_index]
 
-    print(imaimages)
+    print(images)
     print(labels)
 
     unscaled_logits = network.build(images, is_training)
@@ -113,5 +144,7 @@ def _configure_session():
     return config
 
 
-runner({'backend': 'gpu', 'mode': 'train'})
+if __name__ == '__main__':
+    args = parser.parse_args()
+    runner(args)
 
