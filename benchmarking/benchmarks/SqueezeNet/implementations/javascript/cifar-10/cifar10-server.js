@@ -14,6 +14,7 @@ http.createServer(function (request, response) {
     var data = "";
 
     if(path === '/cpu' || path === '/gpu'){
+        console.log(path);
         path = (path.includes('cpu')) ? '../index-cpu.html' : '../index-gpu.html';
     } else {
         path = ["/cifar-10/cifar10-client.min.js", "/dist/runner.js"].includes(path) ?  ".." + path : path;

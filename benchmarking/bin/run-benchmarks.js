@@ -109,7 +109,7 @@ const args = parser.parseArgs();
 
 // Set logging settings
 if(args.backend){
-    if (args.backend === 'cpu' || args.verbose === 'gpu'){
+    if (args.backend === 'cpu' || args.backend === 'gpu'){
         backends = [args.backend]
     } else {
         throw_error(`Invalid verbose input: ${args.backend}`)
