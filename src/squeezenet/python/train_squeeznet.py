@@ -62,6 +62,7 @@ def _run(args):
         device=deploy_config.variables_device(),
         name='training'
     )
+
     validation_metrics = metrics.Metrics(
         labels=labels,
         clone_predictions=[clone.outputs['predictions']

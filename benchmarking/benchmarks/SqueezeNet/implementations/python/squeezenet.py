@@ -1,95 +1,126 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
+from keras.layers import Input, Convolution2D, MaxPooling2D, Activation, concatenate, Dropout, warnings
+from keras.layers import GlobalAveragePooling2D
+from keras import optimizers
+from keras.models import Model
+from keras.datasets import cifar10
 import tensorflow as tf
-from tensorflow.contrib.layers import conv2d, avg_pool2d, max_pool2d
-from tensorflow.contrib.layers import batch_norm, l2_regularizer
-from tensorflow.contrib.framework import add_arg_scope
-from tensorflow.contrib.framework import arg_scope
 
-config = tf.ConfigProto()
-config.gpu_options.allow_growth = True
+"""""""""
+CONSTANTS
+"""""""""
+TRAIN_SIZE = 50000
+TEST_SIZE = 10000
+BATCH_SIZE = 64
+TRAIN_STEPS = 1
 
-@add_arg_scope
-def fire_module(inputs,
-                squeeze_depth,
-                expand_depth,
-                reuse=None,
-                scope=None):
-    with tf.variable_scope(scope, 'fire', [inputs], reuse=reuse):
-        with arg_scope([conv2d, max_pool2d]):
-            net = _squeeze(inputs, squeeze_depth)
-            net = _expand(net, expand_depth)
-        return net
+sq1x1 = "squeeze1x1"
+exp1x1 = "expand1x1"
+exp3x3 = "expand3x3"
+relu = "relu_"
 
 
-def _squeeze(inputs, num_outputs):
-    return conv2d(inputs, num_outputs, [1, 1], stride=1, scope='squeeze')
+class SqueezeNet:
+
+    def __init__(self, backend):
+        self.train_images, self.train_labels, \
+        self.test_images, self.test_labels = SqueezeNet.load_data()
+        self.backend = backend
+
+        if backend == 'cpu':
+            self.device = '/cpu:0'
+        else:
+            assert backend == 'gpu', 'Invalid backend: %s' % backend
+            self.device = "/device:GPU:0"
 
 
-def _expand(inputs, num_outputs):
-    with tf.variable_scope('expand'):
-        e1x1 = conv2d(inputs, num_outputs, [1, 1], stride=1, scope='1x1')
-        e3x3 = conv2d(inputs, num_outputs, [3, 3], scope='3x3')
-    return tf.concat([e1x1, e3x3], 3)
+        self.model = SqueezeNet.create_model()
+
+    # Modular function for Fire Node
+    @staticmethod
+    def fire_module(x, fire_id, squeeze=16, expand=64):
+        s_id = 'fire' + str(fire_id) + '/'
+
+        channel_axis = 3
+
+        x = Convolution2D(squeeze, (1, 1), padding='valid', name=s_id + sq1x1)(x)
+        x = Activation('relu', name=s_id + relu + sq1x1)(x)
+
+        left = Convolution2D(expand, (1, 1), padding='valid', name=s_id + exp1x1)(x)
+        left = Activation('relu', name=s_id + relu + exp1x1)(left)
+
+        right = Convolution2D(expand, (3, 3), padding='same', name=s_id + exp3x3)(x)
+        right = Activation('relu', name=s_id + relu + exp3x3)(right)
+
+        x = concatenate([left, right], axis=channel_axis, name=s_id + 'concat')
+        return x
 
 
-class Squeezenet_CIFAR(object):
-    """Modified version of squeezenet for CIFAR images"""
-    name = 'squeezenet_cifar'
+    # Original SqueezeNet from paper.
+    @staticmethod
+    def create_model(input_shape=(32, 32, 3)):
 
-    def __init__(self):
-        self._weight_decay = .001
-        self._batch_norm_decay = 0.99
-        self._is_built = False
+        img_input = Input(shape=input_shape)
 
-    def build(self, x, is_training):
-        self._is_built = True
-        with tf.variable_scope(self.name, values=[x]):
-            with arg_scope(_arg_scope(is_training,
-                                      self._weight_decay,
-                                      self._batch_norm_decay)):
-                return self._squeezenet(x)
+        x = Convolution2D(64, (2, 2), strides=(1, 1), padding='same', name='conv1')(img_input)
+        x = Activation('relu', name='relu_conv1')(x)
+        x = MaxPooling2D(pool_size=(2, 2), strides=(2, 2), name='pool1')(x)
+
+        x = SqueezeNet.fire_module(x, fire_id=2, squeeze=16, expand=64)
+        x = SqueezeNet.fire_module(x, fire_id=3, squeeze=16, expand=64)
+        x = MaxPooling2D(pool_size=(2, 2), strides=(2, 2), name='pool3')(x)
+
+        x = SqueezeNet.fire_module(x, fire_id=4, squeeze=32, expand=128)
+        x = SqueezeNet.fire_module(x, fire_id=5, squeeze=32, expand=128)
+        x = MaxPooling2D(pool_size=(2, 2), strides=(2, 2), name='pool5')(x)
+
+        x = SqueezeNet.fire_module(x, fire_id=6, squeeze=48, expand=192)
+        x = SqueezeNet.fire_module(x, fire_id=7, squeeze=48, expand=192)
+        x = SqueezeNet.fire_module(x, fire_id=8, squeeze=64, expand=256)
+        x = SqueezeNet.fire_module(x, fire_id=9, squeeze=64, expand=256)
+        x = Convolution2D(10, (1, 1), strides=(1,1), padding='same', name='conv2')
+
+        x = GlobalAveragePooling2D()(x)
+
+        inputs = img_input
+
+        model = Model(inputs, x, name='squeezenet')
+
+        optimizer = optimizers.adam(lr=0.001)
+        model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
+        return model
 
     @staticmethod
-    def _squeezenet(images, num_classes=10):
+    def load_data():
+        (x_train, y_train), (x_test, y_test) = cifar10.load_data()
 
-        net = conv2d(images, 96, [2, 2], scope='conv1')
-        net = max_pool2d(net, [2, 2], scope='maxpool1')
-        net = fire_module(net, 16, 64, scope='fire2')
-        net = fire_module(net, 16, 64, scope='fire3')
-        net = fire_module(net, 32, 128, scope='fire4')
-        net = max_pool2d(net, [2, 2], scope='maxpool4')
-        net = fire_module(net, 32, 128, scope='fire5')
-        net = fire_module(net, 48, 192, scope='fire6')
-        net = fire_module(net, 48, 192, scope='fire7')
-        net = fire_module(net, 64, 256, scope='fire8')
-        net = max_pool2d(net, [2, 2], scope='maxpool8')
-        net = fire_module(net, 64, 256, scope='fire9')
-        net = avg_pool2d(net, [4, 4], scope='avgpool10')
-        net = conv2d(net, num_classes, [1, 1],
-                     activation_fn=None,
-                     normalizer_fn=None,
-                     scope='conv10')
+        train_images = []
+        train_labels = []
+        for x in range(TRAIN_SIZE):
+            train_images.append(tf.to_float(x_train[x]))
+            train_labels.append(tf.reshape(tf.one_hot(y_train[x], 10), [10]))
 
-        logits = tf.squeeze(net, name='logits')
-        return logits
+        test_images = []
+        test_labels = []
+        for x in range(TEST_SIZE):
+            test_images.append(tf.to_float(x_test[x]))
+            test_labels.append(tf.reshape(tf.one_hot(y_test[x], 10), [10]))
+
+        return train_images, train_labels, test_images, test_labels
 
 
-def _arg_scope(is_training, weight_decay, bn_decay):
-    with arg_scope([conv2d],
-                   weights_regularizer=l2_regularizer(weight_decay),
-                   normalizer_fn=batch_norm,
-                   normalizer_params={'is_training': is_training,
-                                      'fused': True,
-                                      'decay': bn_decay}):
-        with arg_scope([conv2d, avg_pool2d, max_pool2d, batch_norm],
-                       data_format='NHWC') as sc:
-                return sc
+    def train(model, set, set_size = BATCH_SIZE, train_steps = TRAIN_STEPS):
+        for i in range(train_steps):
 
 
-'''
-Network in Network: https://arxiv.org/abs/1312.4400
-See Section 3.2 for global average pooling
-'''
+    def predict():
+
+
+def init():
+    return SqueezeNet()
+
+
+
+
+
+
+

@@ -2,14 +2,15 @@ import tensorflow as tf
 import input
 from squeezenet import Squeezenet_CIFAR
 import model_deploy
-import mnist
 import time
 import json
 import argparse
+import numpy as np
+import math
 
-"""
+"""""""""
 Arguments 
-"""
+"""""""""
 parser = argparse.ArgumentParser(description='Runner script for python implementation of MNIST CNN.')
 parser.add_argument(
     '--backend',
@@ -25,22 +26,21 @@ parser.add_argument(
     help=''' Output file name for the benchmark results '''
 )
 
-
-"""
+"""""""""
 CONSTANTS
-"""
+"""""""""
 WARMUP_STEPS = 1
-TRAINING_STEPS = 5
+EPOCHS = 1
 TRAINING_SIZE = 10000
 TEST_SIZE = 1000
+BATCH_SIZE = 64
 
 
 def runner(params):
-    backend = params['backend']
-    mode = params['output']
+    backend = params.backend
+    output_file = params.output
 
-    max_train_steps = TRAINING_STEPS
-
+    print("Info: Setting up the graph")
     with tf.Graph().as_default():
         network = Squeezenet_CIFAR()
 
@@ -55,11 +55,12 @@ def runner(params):
 
         '''Inputs'''
         with tf.device(deploy_config.inputs_device()), tf.name_scope('inputs'):
-            pipeline = input.Pipeline(mode, sess)
+            print("Info: Gather datasets")
+            pipeline = input.Pipeline('train', sess)
 
             images = []
             labels = []
-            for x in range(64):
+            for x in range(TRAINING_SIZE):
                 image, label = pipeline.data
                 images.append(image)
                 labels.append(label)
@@ -77,6 +78,7 @@ def runner(params):
             )
 
         '''Model Creation'''
+        print("Info: Compiling model")
         model_dp = model_deploy.deploy(
             config=deploy_config,
             model_fn=_clone_fn,
@@ -86,7 +88,8 @@ def runner(params):
                 'labels': label_splits,
                 'index_iter': iter(range(deploy_config.num_clones)),
                 'network': network,
-                'is_training': pipeline.is_training
+                'is_training': pipeline.is_training,
+                'batch_size': BATCH_SIZE
             }
         )
 
@@ -100,27 +103,42 @@ def runner(params):
 
         starting_step = sess.run(global_step)
 
-        '''Main Loop'''
-        for train_step in range(starting_step, max_train_steps):
+        if backend == 'gpu':
+            print("Info: Warming up GPU")
             sess.run(train_op)
+
+        '''Main Loop'''
+        print("Info: Running training")
+
+        start = time.time()
+        for train_step in range(starting_step, int(math.ceil(TRAINING_SIZE / BATCH_SIZE)) * EPOCHS):
+            sess.run(train_op)
+        end = time.time()
+
+        train_time = (end - start) / EPOCHS
+
+        print("Training time average: %s" % train_time)
+
+        # start = time.time()
+        # benchmark.predict()
+        # end = time.time()
 
 
 def _clone_fn(images,
               labels,
               index_iter,
               network,
-              is_training):
+              is_training,
+              batch_size):
 
     clone_index = next(index_iter)
-    images = images[clone_index]
-    labels = labels[clone_index]
 
-    print(images)
-    print(labels)
+    # Perform batch stuff here
+    images = images[clone_index][:batch_size]
+    labels = labels[clone_index][:batch_size]
 
     unscaled_logits = network.build(images, is_training)
 
-    print(unscaled_logits)
     tf.losses.softmax_cross_entropy(onehot_labels=labels, logits=unscaled_logits)
     predictions = tf.argmax(unscaled_logits, 1, name='predictions')
     return {
