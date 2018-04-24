@@ -92,7 +92,9 @@ function log_output(text){
 
     console.log("Info: Starting Benchmark");
 
-    let result = await runner('gpu');
+    // Get the desired backend from the document title
+    let backend = document.title.toLowerCase();
+    let result = await runner(backend);
 
     console.log("Info: Finished Benchmark");
 

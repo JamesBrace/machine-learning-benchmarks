@@ -12,8 +12,12 @@ http.createServer(function (request, response) {
     var path = url.parse(request.url).pathname;
     var jsonData = "";
     var data = "";
-    path = path === "/" ? "../index.html" : path;
-    path = ["/cifar-10/cifar10-client.min.js", "/dist/runner.js"].includes(path) ?  ".." + path : path;
+
+    if(path === '/cpu' || path === '/gpu'){
+        path = (path.includes('cpu')) ? '../index-cpu.html' : '../index-gpu.html';
+    } else {
+        path = ["/cifar-10/cifar10-client.min.js", "/dist/runner.js"].includes(path) ?  ".." + path : path;
+    }
 
     request.on("data", function (chunk) {
         return jsonData += chunk;

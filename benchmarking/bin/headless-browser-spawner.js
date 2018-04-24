@@ -27,6 +27,14 @@ parser.addArgument(
 );
 
 parser.addArgument(
+  [ '-be', '--backend' ],
+  {
+    help: `The backend you want to run the test in. Current options are 'cpu' and 'gpu'. Default is both.`
+  }
+);
+
+
+parser.addArgument(
   [ '-o', '--output' ],
   {
     help: `The name of file you want to save output to.`
@@ -37,6 +45,13 @@ const args = parser.parseArgs();
 
 // The relative location of the output file
 const file = `../output/${args.test}/${args.output}`;
+
+let backend;
+if (args.backend === 'gpu' || args.backend === 'cpu'){
+    backend = args.backend;
+} else {
+    throw new Error(`Invalid backend: ${args.backend}`)
+}
 
 /**
  * Firefox Headless Setup
@@ -62,8 +77,8 @@ const puppeteer = require('puppeteer');
  */
 const path_to_js = 'implementations/javascript';
 const urls = {
-    mnist: `../benchmarks/MNIST/${path_to_js}/index.html`,
-    squeezenet: 'http://localhost:1337',
+    mnist: `../benchmarks/MNIST/${path_to_js}/index-${backend}.html`,
+    squeezenet: `http://localhost:1337/${backend}`,
     utilities: "sadasd"
 };
 
@@ -134,7 +149,9 @@ async function load_and_capture_chrome(url){
         });
     });
 
-    await page.goto(url);
+    await page.goto(url, {
+                timeout: 3000000
+            });
 }
 
 /**

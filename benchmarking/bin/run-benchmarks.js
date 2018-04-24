@@ -10,6 +10,7 @@
  */
 
 const valid_environments = ['python', 'chrome', 'firefox'];
+const valid_backends = ['gpu', 'cpu'];
 const default_iterations = 20;
 
 
@@ -99,11 +100,25 @@ let tests_performing = [];
 let envs_running = [];
 let iterations = [];
 let verbose = false;
+let backends = '';
 
 /**
  * Validate input
  */
 const args = parser.parseArgs();
+
+// Set logging settings
+if(args.backend){
+    if (args.backend === 'cpu' || args.verbose === 'gpu'){
+        backends = [args.backend]
+    } else {
+        throw_error(`Invalid verbose input: ${args.backend}`)
+    }
+} else {
+    backends = valid_backends
+}
+
+log(chalk.blue.bold('Backend: ') + chalk.blue(backends));
 
 // Set logging settings
 if(args.verbose){
@@ -170,7 +185,7 @@ const total = new ProgressBar('  Total percentage completed [:bar] :percent :eta
             complete: '=',
             incomplete: ' ',
             width: 50,
-            total: iterations * tests_performing.length * envs_running.length
+            total: iterations * tests_performing.length * envs_running.length * backends.length
         });
 
 tests_performing.forEach(benchmark => {
@@ -190,16 +205,22 @@ tests_performing.forEach(benchmark => {
 
         bar.render();
 
-        // The name of the file to have results outputted to
-        const output_file = `${environ}-output-${Math.floor(Date.now() / 1000)}.txt`;
+        backends.forEach(backend => {
 
-        for(let x = 0; x < iterations; x++) {
-            run_benchmark(benchmark, environ, output_file);
-            bar.tick();
-            bar.render();
-            total.tick();
-            total.render()
-        }
+            log(chalk.bgMagenta(`Running with backend: ${backend}`));
+
+            // The name of the file to have results outputted to
+            const output_file = `${environ}-${backend}-${Math.floor(Date.now() / 1000)}.txt`;
+
+            for(let x = 0; x < iterations; x++) {
+                run_benchmark(benchmark, environ, output_file, backend);
+                bar.tick();
+                bar.render();
+                total.tick();
+                total.render()
+            }
+        });
+
 
         log(chalk.green(`Benchmarking in ${environ} completed.`))
     });
@@ -216,15 +237,16 @@ tests_performing.forEach(benchmark => {
  * Runs the benchmark in the specified environment
  * @param env
  * @param benchmark
+ * @param output_file
  */
-function run_benchmark(benchmark, env, output_file){
+function run_benchmark(benchmark, env, output_file, backend){
     switch (env) {
         case 'python':
-            run_benchmark_in_python(benchmark, output_file);
+            run_benchmark_in_python(benchmark, output_file, backend);
             break;
         case 'chrome':
         case 'firefox':
-            run_benchmark_in_browser(benchmark, env, output_file);
+            run_benchmark_in_browser(benchmark, env, output_file, backend);
             break;
         default:
             throw_error(`Invalid benchmark and environment pairing. Could not run ${benchmark} in ${env}`)
@@ -248,8 +270,8 @@ function run_benchmark_in_python(benchmark) {
  * @param browser
  * @param output_file
  */
-function run_benchmark_in_browser(benchmark, browser, output_file){
-    const runner = `node ${spawner_url} -t ${benchmark} -b ${browser} -o ${output_file}`;
+function run_benchmark_in_browser(benchmark, browser, output_file, backend){
+    const runner = `node ${spawner_url} -t ${benchmark} -b ${browser} -o ${output_file} -be ${backend}`;
     run_cmd(runner)
 }
 

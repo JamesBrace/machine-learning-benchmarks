@@ -71,13 +71,12 @@ export async function runner (backend){
 function log_output(output){
 
     if(!isFirefox){
+        console.log(`Info: Logging to file  ${text}`);
         console.log(output);
+        console.log("Info: Done");
     } else {
         alert(output);
     }
-
-    // Trigger chrome to close
-    document.title = 'Close'
 }
 
 (async ()=>{
@@ -91,7 +90,8 @@ function log_output(output){
 
     console.log("Info: Starting Benchmark");
 
-    let backend = document.title;
+    // Get the desired backend from the document title
+    let backend = document.title.toLowerCase();
     let result = await runner(backend);
 
     console.log("Info: Finished Benchmark");
