@@ -8,7 +8,7 @@
   },
   "license": "MIT",
   "scripts": {
-    "benchmark": "node ./run-benchmarks.js"
+    "benchmark": "yarn && node ./run-benchmarks.js"
   },
   "dependencies": {
     "argparse": "^1.0.10",
