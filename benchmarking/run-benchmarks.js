@@ -30,6 +30,12 @@ const chalk = require('chalk');
 const log = console.log;
 
 /**
+ * Progress Bar
+ */
+const ProgressBar = require('progress');
+
+
+/**
  * Arg Parser
  */
 const ArgumentParser = require('argparse').ArgumentParser;
@@ -143,10 +149,37 @@ log(chalk.blue.bold('Iterations: ') + chalk.blue(iterations));
  * Now that we have the inputs, time to run stuff!
  */
 
-tests_performing.forEach(benchmark => {
-    envs_running.forEach(environ => {
+print_lines(3);
 
-    }
+const total = new ProgressBar(`  Total percentage completed [:bar] :percent :etas`, {
+            complete: '=',
+            incomplete: ' ',
+            width: 50,
+            total: iterations * tests_performing.length * envs_running.length
+        });
+
+tests_performing.forEach(benchmark => {
+    log(chalk.bgGreen(`Starting benchmark: ${benchmark}`));
+    envs_running.forEach(environ => {
+        log(chalk.bgYellow(`Running in environment: ${environ}`));
+
+        const bar = new ProgressBar(`  ${environ} benchmarks completed [:bar] :current/${iterations} :percent :etas`, {
+            complete: '=',
+            incomplete: ' ',
+            width: 20,
+            total: iterations
+        });
+
+        for(const x of [...Array(iterations).keys()]) {
+            run_benchmark(benchmark, environ)
+                .then(() => {
+                    bar.tick();
+                    total.tick()
+                })
+        }
+
+        log(chalk.green(`Benchmarking in ${environ} completed.`))
+    });
 });
 
 
@@ -155,17 +188,21 @@ tests_performing.forEach(benchmark => {
  * =================================================
  */
 
+
+
 /**
- *
+ * Runs the benchmark in the specified environment
+ * @param env
+ * @param benchmark
  */
-function run_benchmark(env, benchmark){
+async function run_benchmark(benchmark, env){
     switch (env) {
         case 'python':
-            run_benchmark_in_python(benchmark);
+            await run_benchmark_in_python(benchmark);
             break;
         case 'chrome':
         case 'firefox':
-            run_benchmark_in_browser(benchmark, env);
+            await run_benchmark_in_browser(benchmark, env);
             break;
         default:
             throw_error(`Invalid benchmark and environment pairing. Could not run ${benchmark} in ${env}`)
@@ -177,7 +214,7 @@ function run_benchmark(env, benchmark){
  * Calls bash command for running a benchmark in python
  * @param benchmark
  */
-function run_benchmark_in_python(benchmark){
+async function run_benchmark_in_python(benchmark){
 
 }
 
@@ -186,7 +223,7 @@ function run_benchmark_in_python(benchmark){
  * @param benchmark
  * @param browser
  */
-function run_benchmark_in_browser(benchmark, browser){
+async function run_benchmark_in_browser(benchmark, browser){
 
 }
 
@@ -197,6 +234,12 @@ function run_benchmark_in_browser(benchmark, browser){
 function throw_error(error){
     log(chalk.red(error));
     process.exit(0)
+}
+
+function print_lines(num_lines){
+    for(let i = 0; i < num_lines; i++){
+        log("")
+    }
 }
 
 /**
