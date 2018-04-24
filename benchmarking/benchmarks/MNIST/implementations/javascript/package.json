@@ -16,7 +16,8 @@
     "parcel-bundler": "^1.7.1"
   },
   "scripts": {
-    "build": "yarn && parcel build runner.js --no-cache --no-source-maps"
+    "build": "yarn && parcel build runner.js --no-cache --no-source-maps",
+    "test": "yarn && parcel build runner.js --no-cache --no-source-maps"
   },
   "license": "MIT",
   "dependencies": {

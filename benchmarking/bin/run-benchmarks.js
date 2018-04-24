@@ -12,16 +12,25 @@
 const valid_environments = ['python', 'chrome', 'firefox'];
 const default_iterations = 20;
 
-const python_cmd = 'python3';
 
 const benchmark_dir = 'benchmarks';
 const impl_dir = 'implementations';
+const python_dir = 'python';
+const js_dir = 'javascript';
+const current_dir = __dirname;
+const spawner_url = `${current_dir}/headless-browser-spawner.js`;
 
 const benchmark_mapping = {
-    mnist: `./${benchmark_dir}/MNIST/`,
-    squeezenet: `./${benchmark_dir}/SqueezeNet/`,
-    utilities: `./${benchmark_dir}/Utility-ML-Functions/`,
+    mnist: `${benchmark_dir}/MNIST/`,
+    squeezenet: `${benchmark_dir}/SqueezeNet/`,
+    utilities: `${benchmark_dir}/Utility-ML-Functions/`,
 };
+
+/**
+ * Command Line Interfacing
+ */
+const execSync = require('child_process').execSync;
+
 
 /**
  * Chalk
@@ -39,7 +48,6 @@ const ProgressBar = require('progress');
  * Arg Parser
  */
 const ArgumentParser = require('argparse').ArgumentParser;
-console.log(ArgumentParser);
 const parser = new ArgumentParser({
   version: '1.0.0',
   addHelp:true,
@@ -68,9 +76,16 @@ parser.addArgument(
 );
 
 parser.addArgument(
-  [ '-v', '--verbose' ],
+  [ '-l', '--verbose'],
   {
     help: `Set to true if you want to turn on verbose mode. Defaults to 'false'`
+  }
+);
+
+parser.addArgument(
+  [ '-b', '--backend'],
+  {
+    help: `The backend you want to run the benchmarks on. Can either be 'cpu' or 'gpu'. Defaults to 'both'`
   }
 );
 
@@ -83,7 +98,7 @@ parser.addArgument(
 let tests_performing = [];
 let envs_running = [];
 let iterations = [];
-let verbose = true;
+let verbose = false;
 
 /**
  * Validate input
@@ -149,9 +164,9 @@ log(chalk.blue.bold('Iterations: ') + chalk.blue(iterations));
  * Now that we have the inputs, time to run stuff!
  */
 
-print_lines(3);
+print_lines(1);
 
-const total = new ProgressBar(`  Total percentage completed [:bar] :percent :etas`, {
+const total = new ProgressBar('  Total percentage completed [:bar] :percent :etas \n', {
             complete: '=',
             incomplete: ' ',
             width: 50,
@@ -159,23 +174,31 @@ const total = new ProgressBar(`  Total percentage completed [:bar] :percent :eta
         });
 
 tests_performing.forEach(benchmark => {
-    log(chalk.bgGreen(`Starting benchmark: ${benchmark}`));
+    log(chalk.blue.bgGreen(`Starting benchmark: ${benchmark}`));
     envs_running.forEach(environ => {
-        log(chalk.bgYellow(`Running in environment: ${environ}`));
 
-        const bar = new ProgressBar(`  ${environ} benchmarks completed [:bar] :current/${iterations} :percent :etas`, {
+        prep_environment(environ, benchmark);
+
+        log(chalk.blue.bgYellow(`Running in environment: ${environ}`));
+
+        const bar = new ProgressBar(`  ${environ} benchmarks completed [:bar] :current/${iterations} :percent :etas \n`, {
             complete: '=',
             incomplete: ' ',
             width: 20,
             total: iterations
         });
 
-        for(const x of [...Array(iterations).keys()]) {
-            run_benchmark(benchmark, environ)
-                .then(() => {
-                    bar.tick();
-                    total.tick()
-                })
+        bar.render();
+
+        // The name of the file to have results outputted to
+        const output_file = `${environ}-output-${Math.floor(Date.now() / 1000)}.txt`;
+
+        for(let x = 0; x < iterations; x++) {
+            run_benchmark(benchmark, environ, output_file);
+            bar.tick();
+            bar.render();
+            total.tick();
+            total.render()
         }
 
         log(chalk.green(`Benchmarking in ${environ} completed.`))
@@ -189,20 +212,19 @@ tests_performing.forEach(benchmark => {
  */
 
 
-
 /**
  * Runs the benchmark in the specified environment
  * @param env
  * @param benchmark
  */
-async function run_benchmark(benchmark, env){
+function run_benchmark(benchmark, env, output_file){
     switch (env) {
         case 'python':
-            await run_benchmark_in_python(benchmark);
+            run_benchmark_in_python(benchmark, output_file);
             break;
         case 'chrome':
         case 'firefox':
-            await run_benchmark_in_browser(benchmark, env);
+            run_benchmark_in_browser(benchmark, env, output_file);
             break;
         default:
             throw_error(`Invalid benchmark and environment pairing. Could not run ${benchmark} in ${env}`)
@@ -214,17 +236,52 @@ async function run_benchmark(benchmark, env){
  * Calls bash command for running a benchmark in python
  * @param benchmark
  */
-async function run_benchmark_in_python(benchmark){
-
+function run_benchmark_in_python(benchmark) {
+    const runner = `python ${current_dir}/../${benchmark_mapping[benchmark]}/${impl_dir}/${python_dir}/runner.py`;
+    run_cmd(runner)
 }
+
 
 /**
  * Calls bash command for running a headless browser implementation of benchmark
  * @param benchmark
  * @param browser
+ * @param output_file
  */
-async function run_benchmark_in_browser(benchmark, browser){
+function run_benchmark_in_browser(benchmark, browser, output_file){
+    const runner = `node ${spawner_url} -t ${benchmark} -b ${browser} -o ${output_file}`;
+    run_cmd(runner)
+}
 
+/**
+ * Builds javascript for browser environment
+ * @param env
+ * @param benchmark
+ */
+function prep_environment(env, benchmark){
+    if(env === 'python') return;
+    log(chalk.blue("Prepping environment..."));
+
+    const current_dir = __dirname;
+    const builder = `cd ${current_dir}/../${benchmark_mapping[benchmark]}/${impl_dir}/${js_dir} && yarn test`;
+    run_cmd(builder);
+
+    log(chalk.blue("Finish prepping environment"));
+}
+
+/**
+ * Runs synchronous command in shell
+ * @param cmd
+ */
+function run_cmd(cmd) {
+
+    const out = (verbose) ? {stdio:[0,1,2]} : null;
+
+    try {
+       execSync(cmd, out)
+    } catch (ex) {
+        throw_error(ex.stdout);
+    }
 }
 
 /**
@@ -241,30 +298,5 @@ function print_lines(num_lines){
         log("")
     }
 }
-
-/**
- * Controls whether benchmark logging is on or off
- */
-const logger = function() {
-    let oldConsoleLog = null;
-    let pub = {};
-
-    pub.enableLogger =  function enableLogger()
-                        {
-                            if(oldConsoleLog == null)
-                                return;
-
-                            window['console']['log'] = oldConsoleLog;
-                        };
-
-    pub.disableLogger = function disableLogger()
-                        {
-                            oldConsoleLog = console.log;
-                            window['console']['log'] = function() {};
-                        };
-
-    return pub;
-}();
-
 
 

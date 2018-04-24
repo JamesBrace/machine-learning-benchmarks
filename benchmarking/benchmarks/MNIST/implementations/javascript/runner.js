@@ -40,10 +40,10 @@ async function runner(backend) {
         time: train_time,
     }));
 
-    let batch = mnist.nextBatch('test', 100);
+    let batch = mnist.nextBatch('test', 64);
     const iterations = 50;
 
-    console.log("Info: Starting prediction testing with 50 iterations");
+    console.log(`Info: Starting prediction testing with ${iterations} iterations`);
 
     let start_test = performance.now();
 
@@ -74,17 +74,17 @@ async function runner(backend) {
 function log_output(text){
 
     if(!isFirefox){
+        console.log(`Info: Logging to file  ${text}`);
         console.log(text);
+        console.log("Info: Done");
     } else {
         alert(text);
     }
-
-    // Trigger chrome to close
-    document.title = 'Close'
 }
 
 
 (async ()=>{
+
     isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
     const browser = (isFirefox) ? 'firefox' :'chrome';
 

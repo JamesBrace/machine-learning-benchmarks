@@ -1,1 +1,0 @@
-yoInfo: current browser is FIREFOXInfo: current browser is FIREFOX
