@@ -1,2 +1,0 @@
-{"benchmark":"MNIST","backend":"gpu","implementation":"JavaScript","train":17391.599999999016,"test":1.3620000000082655} 
-{"benchmark":"MNIST","backend":"gpu","implementation":"JavaScript","train":17342.500000002474,"test":1.7440000000351574} 
