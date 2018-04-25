@@ -41,11 +41,11 @@ def runner(params):
 
     if backend == 'gpu':
         print("Info: Warming up GPU")
-        benchmark.train(EPOCHS)
+        benchmark.train()
 
     print("Info: Starting training benchmark")
     start = time.time()
-    benchmark.train(EPOCHS)
+    benchmark.train()
     end = time.time()
     print("Info: Finished training benchmark")
 

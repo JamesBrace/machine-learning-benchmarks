@@ -261,7 +261,7 @@ function run_benchmark(benchmark, env, output_file, backend){
  * @param output_file
  */
 function run_benchmark_in_python(benchmark, backend, output_file) {
-    const runner = `python ${current_dir}/../${benchmark_mapping[benchmark]}/${impl_dir}/${python_dir}/runner.py --backend ${backend} --output ${output_file}`;
+    const runner = `python3 ${current_dir}/../${benchmark_mapping[benchmark]}/${impl_dir}/${python_dir}/runner.py --backend ${backend} --output ${output_file}`;
     run_cmd(runner)
 }
 
