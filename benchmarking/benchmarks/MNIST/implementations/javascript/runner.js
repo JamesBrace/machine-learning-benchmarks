@@ -9,8 +9,8 @@ let isFirefox = false;
 /**
  * CONSTANTS
  */
-const TRAIN_STEPS = 10;
-const WARMUP_STEPS = 1;
+const TRAIN_EPOCHS = 1;
+const WARMUP_EPOCHS = 1;
 
 async function runner(backend) {
 
@@ -29,14 +29,14 @@ async function runner(backend) {
 
     if(backend === 'gpu') {
         // Warmup
-        console.log(`Info: Warming up gpu with ${WARMUP_STEPS} iterations`);
-        await benchmark.train(train_batch, WARMUP_STEPS);
+        console.log(`Info: Warming up gpu with ${WARMUP_EPOCHS} iterations`);
+        await benchmark.train(train_batch, WARMUP_EPOCHS);
     }
 
-    console.log(`Info: Starting train benchmark with ${TRAIN_STEPS} epochs`);
+    console.log(`Info: Starting train benchmark with ${TRAIN_EPOCHS} epochs`);
 
     start = performance.now();
-    await benchmark.train(train_batch, TRAIN_STEPS);
+    await benchmark.train(train_batch, TRAIN_EPOCHS);
     end = performance.now();
 
     // Clear memory!!
@@ -44,7 +44,7 @@ async function runner(backend) {
 
     console.log("Info: Finished train benchmark");
 
-    let train_time = end - start / TRAIN_STEPS * 1000;
+    let train_time = end - start / TRAIN_EPOCHS * 1000;
 
     console.log("Info: " + JSON.stringify({
         options: `train( ${backend} )`,

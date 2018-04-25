@@ -1,9 +1,7 @@
-import tensorflow as tf
 import squeezenet
 import time
 import json
 import argparse
-import math
 
 """""""""
 Arguments 
@@ -26,9 +24,9 @@ parser.add_argument(
 """""""""
 CONSTANTS
 """""""""
-WARMUP_STEPS = 1
-EPOCHS = 1
-TRAINING_SIZE = 50000
+WARMUP_EPOCHS = 1
+TRAIN_EPOCHS = 1
+TRAIN_SIZE = 50000
 TEST_SIZE = 10000
 BATCH_SIZE = 64
 
@@ -45,7 +43,7 @@ def runner(params):
 
     if backend == 'gpu':
         print("Info: Warming up GPU")
-        model.train(EPOCHS)
+        model.train(TRAIN_EPOCHS)
 
     print("Info: Starting training benchmark")
     start = time.time()
@@ -54,7 +52,7 @@ def runner(params):
 
     print('Info: Finished training benchmark!')
 
-    train_time = (end - start) / EPOCHS
+    train_time = (end - start) / TRAIN_EPOCHS
 
     print("Info: Training time was %s" % str(train_time))
 
@@ -71,7 +69,7 @@ def runner(params):
     print("Info: Testing time was %s" % str(test_time))
 
     data = {'benchmark': 'SqueezeNet', 'backend': backend, 'implementation': 'Python', 'train': train_time,
-            'test': test_time, 'train_size': TRAINING_SIZE, 'training_steps': EPOCHS, 'test_size': TEST_SIZE}
+            'test': test_time, 'train_size': TRAIN_SIZE, 'training_steps': TRAIN_EPOCHS, 'test_size': TEST_SIZE}
     print(json.dumps(data, separators=(',', ':')))
 
     file = open(output_file, "a+")

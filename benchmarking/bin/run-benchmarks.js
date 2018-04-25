@@ -11,7 +11,7 @@
 
 const valid_environments = ['python', 'chrome', 'firefox'];
 const valid_backends = ['gpu', 'cpu'];
-const default_iterations = 20;
+const default_iterations = 10;
 
 const benchmark_dir = 'benchmarks';
 const impl_dir = 'implementations';
@@ -23,8 +23,7 @@ const output_dir = `${current_dir}/../output`;
 
 const benchmark_mapping = {
     mnist: `${benchmark_dir}/MNIST/`,
-    squeezenet: `${benchmark_dir}/SqueezeNet/`,
-    utilities: `${benchmark_dir}/Utility-ML-Functions/`,
+    squeezenet: `${benchmark_dir}/SqueezeNet/`
 };
 
 /**

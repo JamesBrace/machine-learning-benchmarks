@@ -3,7 +3,6 @@ from keras.layers import GlobalAveragePooling2D
 from keras import optimizers
 from keras.models import Model
 from keras.datasets import cifar10
-from keras.preprocessing.text import one_hot
 import tensorflow as tf
 import numpy as np
 

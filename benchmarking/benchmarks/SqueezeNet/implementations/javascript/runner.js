@@ -13,8 +13,8 @@ let isFirefox = false;
  */
 const TRAIN_SIZE = 50000;
 const TEST_SIZE = 10000;
-const TRAIN_STEPS = 1;
-const WARMUP_STEPS = 1;
+const TRAIN_EPOCHS = 1;
+const WARMUP_EPOCHS = 1;
 
 export async function runner (backend){
     console.log("Info: Setting up model and loading data from server");
@@ -29,13 +29,13 @@ export async function runner (backend){
     if(backend === 'gpu') {
         // Warmup
         console.log("Info: Warming up gpu");
-        await model.train(train_set, TRAIN_SIZE, WARMUP_STEPS);
+        await model.train(train_set, TRAIN_SIZE, WARMUP_EPOCHS);
     }
 
     console.log("Info: Starting train benchmark");
 
     let start = performance.now();
-    await model.train(train_set, TRAIN_SIZE, TRAIN_STEPS);
+    await model.train(train_set, TRAIN_SIZE, TRAIN_EPOCHS);
     let end = performance.now();
 
     // Clear training set from memory!!
@@ -69,7 +69,7 @@ export async function runner (backend){
         }));
 
     return {benchmark: 'SqueezeNet', backend: backend, implementation: 'JavaScript', train: train_time, test: test_time,
-        train_size: TRAIN_SIZE, training_steps: TRAIN_STEPS, test_size: TEST_SIZE}
+        train_size: TRAIN_SIZE, training_steps: TRAIN_EPOCHS, test_size: TEST_SIZE}
 
 }
 
