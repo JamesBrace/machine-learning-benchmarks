@@ -109,12 +109,17 @@ async function set_data(){
  *  SETUP
  ****************************/
 export async function init(backend) {
+
+    console.log(`Info: Current backend is ${tf.getBackend()}`);
+
     // Set backend to run on either CPU or GPU
     if(backend === 'gpu' || backend === 'cpu'){
         (backend === 'gpu') ? tf.setBackend('webgl') : tf.setBackend('cpu');
     } else {
         throw new Error(`Invalid backend parameter: ${backend}. Please specify either 'cpu' or 'gpu'`)
     }
+
+    console.log("Info: Set backend");
 
     await set_data();
     return new MNIST()
