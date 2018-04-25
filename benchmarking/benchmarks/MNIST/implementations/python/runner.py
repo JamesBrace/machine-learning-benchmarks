@@ -22,42 +22,48 @@ parser.add_argument(
 )
 
 
-"""
+"""""""""
 CONSTANTS
-"""
+"""""""""
 WARMUP_STEPS = 1
-TRAINING_STEPS = 5
+EPOCHS = 1
 TRAINING_SIZE = 50000
 TEST_SIZE = 10000
 
 
 def runner(params):
-    print(params)
     backend = params.backend
     output = params.output
+
+    print("Info: Initializing model")
 
     benchmark = mnist.init(backend, train_size=TRAINING_SIZE, test_size=TEST_SIZE)
 
     if backend == 'gpu':
-        benchmark.train(WARMUP_STEPS)
+        print("Info: Warming up GPU")
+        benchmark.train(EPOCHS)
 
+    print("Info: Starting training benchmark")
     start = time.time()
-    benchmark.train(TRAINING_STEPS)
+    benchmark.train(EPOCHS)
     end = time.time()
+    print("Info: Finished training benchmark")
 
-    train_time = (end - start)/TRAINING_STEPS
+    train_time = (end - start) / EPOCHS
     print("Training time average: %s" % train_time)
 
+    print("Info: Starting testing benchmark")
     start = time.time()
     benchmark.predict()
     end = time.time()
+    print("Info: Finished testing benchmark")
 
     test_time = end - start
 
     print("Test time: %s" % str(test_time))
 
     data = {'benchmark': 'MNIST', 'backend': backend, 'implementation': 'Python', 'train': train_time,
-            'test': test_time, 'train_size': TRAINING_SIZE, 'training_steps': TRAINING_STEPS, 'test_size': TEST_SIZE}
+            'test': test_time, 'train_size': TRAINING_SIZE, 'training_steps': EPOCHS, 'test_size': TEST_SIZE}
     print(json.dumps(data, separators=(',', ':')))
 
     file = open(output, "a+")

@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import tensorflow as tf
 import dataset
+import math
 
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
@@ -13,10 +14,15 @@ CONSTANTS
 """""""""""
 TRAIN_SIZE = 50000
 TEST_SIZE = 10000
+LEARNING_RATE = .001
+BATCH_SIZE = 64
+IMAGE_SIZE = 28
+IMAGE_DEPTH = 1
+EPOCHS = 1
 
 
 class MNIST:
-    def __init__(self, backend, batch_size=64, train_epochs=1, train_size=TRAIN_SIZE, test_size=TEST_SIZE):
+    def __init__(self, backend, batch_size=BATCH_SIZE, train_epochs=EPOCHS, train_size=TRAIN_SIZE, test_size=TEST_SIZE):
         self.train_data = dataset.train("/tmp/mnist_data")
         self.test_data = dataset.test("/tmp/mnist_data")
 
@@ -50,7 +56,7 @@ class MNIST:
     def cnn_model_fn(features, labels, mode, params):
         with tf.device(params['backend']):
 
-            input_layer = tf.reshape(features["x"], [-1, 28, 28, 1])
+            input_layer = tf.reshape(features["x"], [-1, IMAGE_SIZE, IMAGE_SIZE, IMAGE_DEPTH])
 
             '''
             Convolutional Layer #1
@@ -63,6 +69,7 @@ class MNIST:
             conv1 = tf.layers.conv2d(
                 inputs=input_layer,
                 filters=32,
+                strides=1,
                 kernel_size=[5, 5],
                 padding="same",
                 activation=tf.nn.relu)
@@ -127,7 +134,7 @@ class MNIST:
 
             # Configure the Training Op (for TRAIN mode)
             if mode == tf.estimator.ModeKeys.TRAIN:
-                optimizer = tf.train.AdamOptimizer(learning_rate=0.001)
+                optimizer = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE)
                 train_op = optimizer.minimize(
                     loss=loss,
                     global_step=tf.train.get_global_step())
@@ -152,10 +159,10 @@ class MNIST:
 
             return tf.estimator.EstimatorSpec(mode=mode, loss=loss, eval_metric_ops=eval_metric_ops)
 
-    def train(self, train_steps=1000):
+    def train(self, epochs=EPOCHS):
         self.classifier.train(
             input_fn=self.train_input_fn,
-            steps=train_steps
+            steps=int(math.ceil(TRAIN_SIZE/BATCH_SIZE)) * epochs,
         )
 
     def predict(self):
@@ -166,13 +173,6 @@ def init(backend, train_size=TRAIN_SIZE, test_size=TEST_SIZE):
     m = MNIST(backend, train_size, test_size)
     return m
 
-
-def run_mnist(mode, model):
-    if mode == 'train' or mode == 'both':
-        model.train()
-
-    if mode == 'predict' or mode == 'both':
-        model.predict()
 
 
 
