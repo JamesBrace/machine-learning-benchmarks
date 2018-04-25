@@ -6,8 +6,11 @@ import tensorflow as tf
 import dataset
 import math
 
-config = tf.ConfigProto()
+config = tf.ConfigProto(log_device_placement=True)
 config.gpu_options.allow_growth = True
+sess = tf.Session(config=config)
+
+
 
 """""""""""
 CONSTANTS
