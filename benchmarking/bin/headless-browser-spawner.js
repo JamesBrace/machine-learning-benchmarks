@@ -61,7 +61,7 @@ require('geckodriver');
 const {Builder, By, until} = require('selenium-webdriver');
 const path = require('path');
 const firefox = require('selenium-webdriver/firefox');
-const path_to_firefox = "/jet/prs/workspace/firefox/firefox-bin";
+const path_to_firefox = "/home/bracejames95/firefox/firefox-bin";
 
 // The global path to output file which is used by the program
 const file_url = args.output;
