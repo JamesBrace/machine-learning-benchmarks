@@ -119,6 +119,8 @@ async function load_and_capture_chrome(url){
             '--headless',
             '--hide-scrollbars',
             '--mute-audio',
+            '--ignoreDefaultArgs',
+            '--dumpio'
             // '--no-sandbox'
         ]
     });
