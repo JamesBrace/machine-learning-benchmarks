@@ -26,7 +26,7 @@ EPOCHS = 1
 
 class MNIST:
     def __init__(self, backend, batch_size=BATCH_SIZE, train_epochs=EPOCHS, train_size=TRAIN_SIZE, test_size=TEST_SIZE):
-    
+
         self.train_data = dataset.train("/tmp/mnist_data")
         self.test_data = dataset.test("/tmp/mnist_data")
 
