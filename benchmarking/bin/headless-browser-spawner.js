@@ -120,7 +120,7 @@ async function load_and_capture_chrome(url){
             '--hide-scrollbars',
             '--mute-audio',
             // '--ignoreDefaultArgs',
-            '--iodump'
+            // '--iodump'
             '--no-sandbox'
         ]
     });
