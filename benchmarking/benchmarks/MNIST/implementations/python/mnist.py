@@ -15,8 +15,8 @@ import math
 """""""""""
 CONSTANTS
 """""""""""
-TRAIN_SIZE = 1000
-TEST_SIZE = 200
+TRAIN_SIZE = 50000
+TEST_SIZE = 10000
 LEARNING_RATE = .001
 BATCH_SIZE = 64
 IMAGE_SIZE = 28
@@ -62,11 +62,7 @@ class MNIST:
     def cnn_model_fn(features, labels, mode, params):
         with tf.device(params['backend']):
 
-            print(features["x"].shape)
-
-            input_layer = tf.reshape(features["x"], [TRAIN_SIZE, IMAGE_SIZE, IMAGE_SIZE, IMAGE_DEPTH])
-
-            print("input layer", input_layer)
+            input_layer = tf.reshape(features["x"], [-1, IMAGE_SIZE, IMAGE_SIZE, IMAGE_DEPTH])
 
             '''
             Convolutional Layer #1

@@ -27,8 +27,8 @@ CONSTANTS
 """""""""
 WARMUP_STEPS = 1
 EPOCHS = 1
-TRAINING_SIZE = 50000
-TEST_SIZE = 10000
+TRAIN_SIZE = 20000
+TEST_SIZE = 4000
 
 
 def runner(params):
@@ -37,7 +37,7 @@ def runner(params):
 
     print("Info: Initializing model")
 
-    benchmark = mnist.init(backend, train_size=TRAINING_SIZE, test_size=TEST_SIZE)
+    benchmark = mnist.init(backend, train_size=TRAIN_SIZE, test_size=TEST_SIZE)
 
     if backend == 'gpu':
         print("Info: Warming up GPU")
@@ -63,7 +63,7 @@ def runner(params):
     print("Test time: %s" % str(test_time))
 
     data = {'benchmark': 'MNIST', 'backend': backend, 'implementation': 'Python', 'train': train_time,
-            'test': test_time, 'train_size': TRAINING_SIZE, 'training_steps': EPOCHS, 'test_size': TEST_SIZE}
+            'test': test_time, 'train_size': TRAIN_SIZE, 'training_steps': EPOCHS, 'test_size': TEST_SIZE}
     print(json.dumps(data, separators=(',', ':')))
 
     file = open(output, "a+")
