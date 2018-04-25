@@ -10,8 +10,8 @@ const BATCH_SIZE = 64;
 const TRAIN_STEPS = 100;
 
 // Data constants
-const TRAINING_SIZE = 50000;
-const TEST_SIZE = 10000;
+const TRAINING_SIZE = 20000;
+const TEST_SIZE = 4000;
 const IMAGE_SIZE = 32;
 const IMAGE_DEPTH = 3;
 
