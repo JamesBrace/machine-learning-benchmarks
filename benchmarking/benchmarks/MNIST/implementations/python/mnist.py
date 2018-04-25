@@ -26,6 +26,7 @@ EPOCHS = 1
 
 class MNIST:
     def __init__(self, backend, batch_size=BATCH_SIZE, train_epochs=EPOCHS, train_size=TRAIN_SIZE, test_size=TEST_SIZE):
+    
         self.train_data = dataset.train("/tmp/mnist_data")
         self.test_data = dataset.test("/tmp/mnist_data")
 
@@ -168,7 +169,7 @@ class MNIST:
     def train(self, epochs=EPOCHS):
         self.classifier.train(
             input_fn=self.train_input_fn,
-            steps=int(math.ceil(TRAIN_SIZE/BATCH_SIZE)) * epochs,
+            steps=1,
         )
 
     def predict(self):
