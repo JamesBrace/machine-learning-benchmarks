@@ -117,18 +117,16 @@ export class SqueezeNet {
 
     // Train the model.
     async train(set, set_size = BATCH_SIZE, train_steps = TRAIN_STEPS) {
-        for (let i = 0; i < train_steps; i++) {
-            console.log(`Info: epoch ${i}`);
-            await this.model.fit(set.images.reshape([set_size, IMAGE_SIZE, IMAGE_SIZE, IMAGE_DEPTH]),
-                set.labels, {batchSize: BATCH_SIZE, epochs: 1});
-            await tf.nextFrame();
-        }
+        await this.model.fit(set.images.reshape([set_size, IMAGE_SIZE, IMAGE_SIZE, IMAGE_DEPTH]),
+                set.labels, {batchSize: BATCH_SIZE, epochs: train_steps});
+        await tf.nextFrame();
+
     }
 
     // Predict the digit number from a batch of input images.
     async predict(batch, length){
         await this.model.predict(batch.images.reshape([length , IMAGE_SIZE, IMAGE_SIZE, IMAGE_DEPTH]),
-            {batchSize: batch.length});
+            {batchSize: length});
     }
 
     /**

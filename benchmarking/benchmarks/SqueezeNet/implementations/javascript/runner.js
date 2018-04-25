@@ -11,8 +11,8 @@ let isFirefox = false;
 /**
  * Constants
  */
-const TRAIN_SIZE = 10000;
-const TEST_SIZE = 1000;
+const TRAIN_SIZE = 50000;
+const TEST_SIZE = 10000;
 const TRAIN_STEPS = 1;
 const WARMUP_STEPS = 1;
 
@@ -21,7 +21,7 @@ export async function runner (backend){
 
     const model = await squeeze.init(backend, TRAIN_SIZE, TEST_SIZE);
 
-    console.log("Info: Model created", model);
+    console.log("Info: Model created");
     console.log(`Info: Backend being used is '${tf.getBackend()}'`);
 
     let train_set =  model.nextBatch('train', TRAIN_SIZE);

@@ -3,7 +3,9 @@ from keras.layers import GlobalAveragePooling2D
 from keras import optimizers
 from keras.models import Model
 from keras.datasets import cifar10
+from keras.preprocessing.text import one_hot
 import tensorflow as tf
+import numpy as np
 
 """""""""
 CONSTANTS
@@ -22,8 +24,12 @@ relu = "relu_"
 class SqueezeNet:
 
     def __init__(self, backend):
-        self.train_images, self.train_labels, \
-        self.test_images, self.test_labels = SqueezeNet.load_data()
+        self.train_images = []
+        self.train_labels = np.zeros((TRAIN_SIZE, 10))
+        self.test_images = []
+        self.test_labels = np.zeros((TEST_SIZE, 10))
+
+        self.load_data()
         self.backend = backend
 
         if backend == 'cpu':
@@ -31,7 +37,6 @@ class SqueezeNet:
         else:
             assert backend == 'gpu', 'Invalid backend: %s' % backend
             self.device = "/device:GPU:0"
-
 
         self.model = SqueezeNet.create_model()
 
@@ -53,7 +58,6 @@ class SqueezeNet:
 
         x = concatenate([left, right], axis=channel_axis, name=s_id + 'concat')
         return x
-
 
     # Original SqueezeNet from paper.
     @staticmethod
@@ -77,7 +81,7 @@ class SqueezeNet:
         x = SqueezeNet.fire_module(x, fire_id=7, squeeze=48, expand=192)
         x = SqueezeNet.fire_module(x, fire_id=8, squeeze=64, expand=256)
         x = SqueezeNet.fire_module(x, fire_id=9, squeeze=64, expand=256)
-        x = Convolution2D(10, (1, 1), strides=(1,1), padding='same', name='conv2')
+        x = Convolution2D(10, (1, 1), strides=(1, 1), padding='same', name='conv2')(x)
 
         x = GlobalAveragePooling2D()(x)
 
@@ -89,34 +93,26 @@ class SqueezeNet:
         model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
         return model
 
-    @staticmethod
-    def load_data():
-        (x_train, y_train), (x_test, y_test) = cifar10.load_data()
+    def load_data(self):
+        (self.train_images, train_labels), (self.test_images, test_labels) = cifar10.load_data()
 
-        train_images = []
-        train_labels = []
-        for x in range(TRAIN_SIZE):
-            train_images.append(tf.to_float(x_train[x]))
-            train_labels.append(tf.reshape(tf.one_hot(y_train[x], 10), [10]))
+        train_labels = train_labels.flatten()
+        test_labels = test_labels.flatten()
 
-        test_images = []
-        test_labels = []
-        for x in range(TEST_SIZE):
-            test_images.append(tf.to_float(x_test[x]))
-            test_labels.append(tf.reshape(tf.one_hot(y_test[x], 10), [10]))
+        self.train_labels[np.arange(TRAIN_SIZE), train_labels] = 1
+        self.test_labels[np.arange(TEST_SIZE), test_labels] = 1
 
-        return train_images, train_labels, test_images, test_labels
+    def train(self, train_steps=TRAIN_STEPS):
+        with tf.device(self.device):
+            self.model.fit(self.train_images, self.train_labels, batch_size=BATCH_SIZE, epochs=train_steps)
 
-
-    def train(model, set, set_size = BATCH_SIZE, train_steps = TRAIN_STEPS):
-        for i in range(train_steps):
+    def predict(self):
+        with tf.device(self.device):
+            self.model.evaluate(x=self.test_images, y=self.test_labels, batch_size=64)
 
 
-    def predict():
-
-
-def init():
-    return SqueezeNet()
+def init(backend):
+    return SqueezeNet(backend)
 
 
 
