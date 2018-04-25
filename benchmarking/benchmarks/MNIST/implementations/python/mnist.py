@@ -15,7 +15,7 @@ import math
 """""""""""
 CONSTANTS
 """""""""""
-TRAIN_SIZE = 50000
+TRAIN_SIZE = 30000
 TEST_SIZE = 10000
 LEARNING_RATE = .001
 BATCH_SIZE = 64
