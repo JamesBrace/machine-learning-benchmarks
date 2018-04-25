@@ -37,7 +37,7 @@ def runner(params):
 
     print("Info: Initializing model")
 
-    benchmark = mnist.init(backend, train_size=TRAIN_SIZE, test_size=TEST_SIZE)
+    benchmark = mnist.init(backend, batch_size=64, train_size=TRAIN_SIZE, test_size=TEST_SIZE)
 
     if backend == 'gpu':
         print("Info: Warming up GPU")
