@@ -41,9 +41,13 @@ class MNIST:
                 'backend': backend,
             })
 
+        training_stuff = self.train_data['images'][:train_size]
+        label_stuff = self.train_data['labels'][:train_size]
+        print(len(training_stuff))
+
         self.train_input_fn = tf.estimator.inputs.numpy_input_fn(
-            x={"x": self.train_data['images'][:train_size]},
-            y=self.train_data['labels'][:train_size],
+            x={"x": training_stuff},
+            y=label_stuff,
             batch_size=batch_size,
             num_epochs=train_epochs,
             shuffle=True)
