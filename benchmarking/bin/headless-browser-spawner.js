@@ -114,7 +114,7 @@ async function run_test(){
 
 async function load_and_capture_chrome(url){
     const browser = await puppeteer.launch({
-        headless: false,
+        headless: true,
         args: [
             // '--headless',
             '--hide-scrollbars',
