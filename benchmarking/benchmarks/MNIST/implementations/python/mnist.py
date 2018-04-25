@@ -15,8 +15,8 @@ import math
 """""""""""
 CONSTANTS
 """""""""""
-TRAIN_SIZE = 20000
-TEST_SIZE = 4000
+TRAIN_SIZE = 10000
+TEST_SIZE = 2000
 LEARNING_RATE = .001
 BATCH_SIZE = 64
 IMAGE_SIZE = 28
@@ -58,6 +58,8 @@ class MNIST:
     @staticmethod
     def cnn_model_fn(features, labels, mode, params):
         with tf.device(params['backend']):
+
+            print(features["x"])
 
             input_layer = tf.reshape(features["x"], [-1, IMAGE_SIZE, IMAGE_SIZE, IMAGE_DEPTH])
 
