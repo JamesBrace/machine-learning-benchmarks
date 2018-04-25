@@ -119,7 +119,7 @@ async function load_and_capture_chrome(url){
             // '--headless',
             '--hide-scrollbars',
             '--mute-audio',
-            // '--no-sandbox'
+            '--no-sandbox'
         ]
     });
     const page = await browser.newPage();
