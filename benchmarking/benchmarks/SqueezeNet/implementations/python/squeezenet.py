@@ -6,9 +6,9 @@ from keras.datasets import cifar10
 import tensorflow as tf
 import numpy as np
 
-config = tf.ConfigProto(log_device_placement=True)
-config.gpu_options.allow_growth = True
-sess = tf.Session(config=config)
+from tensorflow.python.client import device_lib
+local_device_protos = device_lib.list_local_devices()
+print(local_device_protos)
 
 """""""""
 CONSTANTS
