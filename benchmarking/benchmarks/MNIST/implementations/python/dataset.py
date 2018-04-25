@@ -99,9 +99,9 @@ def dataset(type, directory, images_file, labels_file):
     # Create a default in-process session.
     with tf.Session() as sess:
         if type == 'train':
-            x = 60000
-        else:
             x = 10000
+        else:
+            x = 2000
 
         for i in range(x):
             image = sess.run(next_image)

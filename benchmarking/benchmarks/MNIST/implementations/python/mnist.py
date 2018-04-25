@@ -43,7 +43,6 @@ class MNIST:
 
         training_stuff = self.train_data['images'][:train_size]
         label_stuff = self.train_data['labels'][:train_size]
-        print(len(training_stuff))
 
         self.train_input_fn = tf.estimator.inputs.numpy_input_fn(
             x={"x": training_stuff},
@@ -63,9 +62,11 @@ class MNIST:
     def cnn_model_fn(features, labels, mode, params):
         with tf.device(params['backend']):
 
-            print(features["x"])
+            print(features["x"].shape)
 
             input_layer = tf.reshape(features["x"], [-1, IMAGE_SIZE, IMAGE_SIZE, IMAGE_DEPTH])
+
+            print("input layer", input_layer)
 
             '''
             Convolutional Layer #1
