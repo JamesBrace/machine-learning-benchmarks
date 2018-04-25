@@ -116,9 +116,10 @@ async function load_and_capture_chrome(url){
     const browser = await puppeteer.launch({
         headless: false,
         args: [
-          '--headless',
-          '--hide-scrollbars',
-          '--mute-audio'
+            '--headless',
+            '--hide-scrollbars',
+            '--mute-audio',
+            '--no-sandbox'
         ]
     });
     const page = await browser.newPage();
