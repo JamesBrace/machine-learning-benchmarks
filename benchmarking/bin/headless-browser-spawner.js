@@ -121,7 +121,7 @@ async function load_and_capture_chrome(url){
             '--mute-audio',
             // '--ignoreDefaultArgs',
             // '--iodump'
-            '--no-sandbox'
+            // '--no-sandbox'
         ]
     });
     const page = await browser.newPage();
