@@ -44,7 +44,7 @@ async function runner(backend) {
 
     console.log("Info: Finished train benchmark");
 
-    let train_time = end - start / TRAIN_EPOCHS * 1000;
+    let train_time = end - start / TRAIN_EPOCHS;
 
     console.log("Info: " + JSON.stringify({
         options: `train( ${backend} )`,
