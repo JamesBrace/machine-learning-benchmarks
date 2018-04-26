@@ -116,10 +116,10 @@ async function load_and_capture_chrome(url){
     const browser = await puppeteer.launch({
         headless: false,
         args: [
-            '--headless',
+            //'--headless',
             '--hide-scrollbars',
             '--mute-audio',
-            '--use-gl'
+            //'--use-gl'
             // '--ignoreDefaultArgs',
             // '--iodump'
             // '--no-sandbox'
@@ -165,7 +165,7 @@ async function load_and_capture_chrome(url){
  */
 async function load_and_capture_firefox(url){
     const options = new firefox.Options();
-    options.headless();
+    //options.headless();
     options.setBinary(path_to_firefox);
 
     const driver = await new Builder()
