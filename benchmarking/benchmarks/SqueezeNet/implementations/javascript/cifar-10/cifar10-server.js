@@ -91,6 +91,7 @@ http.createServer(function (request, response) {
                         data = _context.sent;
 
                     case 31:
+                        console.log("data", data);
                         data = JSON.stringify(data);
                         _context.next = 37;
                         break;
