@@ -169,7 +169,7 @@ class MNIST:
     def train(self):
         self.classifier.train(
             input_fn=self.train_input_fn,
-            steps=500,
+            steps=1000,
         )
 
     def predict(self):

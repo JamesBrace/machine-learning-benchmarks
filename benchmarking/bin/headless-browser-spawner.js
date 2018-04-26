@@ -61,7 +61,9 @@ require('geckodriver');
 const {Builder, By, until} = require('selenium-webdriver');
 const path = require('path');
 const firefox = require('selenium-webdriver/firefox');
-const path_to_firefox = "/home/bracejames95/firefox/firefox-bin";
+// const path_to_firefox = "/home/bracejames95/firefox/firefox-bin";
+const path_to_firefox = "/Applications/Firefox.app/Contents/MacOS/firefox-bin";
+
 
 // The global path to output file which is used by the program
 const file_url = args.output;
@@ -165,7 +167,7 @@ async function load_and_capture_chrome(url){
  */
 async function load_and_capture_firefox(url){
     const options = new firefox.Options();
-    //options.headless();
+    //options.headless()
     options.setBinary(path_to_firefox);
 
     const driver = await new Builder()

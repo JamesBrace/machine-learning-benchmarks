@@ -275,7 +275,7 @@ module.exports = function () {
         return CIFAR10[category] = new Category(category);
     });
 
-    CIFAR10.set(50000, 10000);
+    CIFAR10.set(2000, 1000);
 
     return testing ? {
         testing: { shuffle: shuffle, get: _get, getData: getData, indeces: indeces },
