@@ -62,9 +62,9 @@ const {Builder, By, until} = require('selenium-webdriver');
 const path = require('path');
 const firefox = require('selenium-webdriver/firefox');
 // const path_to_firefox = "/home/bracejames95/firefox/firefox-bin";
-const path_to_firefox = "/Applications/Firefox.app/Contents/MacOS/firefox-bin";
+//const path_to_firefox = "/Applications/Firefox.app/Contents/MacOS/firefox-bin";
 
-
+const path_to_firefox = "/usr/bin/firefox";
 // The global path to output file which is used by the program
 const file_url = args.output;
 
