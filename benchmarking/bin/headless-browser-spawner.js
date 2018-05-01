@@ -106,7 +106,7 @@ async function load_and_capture_chrome(url){
     });
 
     await page.goto(url, {
-                timeout: 30000000000
+                timeout: 30000000
             });
 }
 
