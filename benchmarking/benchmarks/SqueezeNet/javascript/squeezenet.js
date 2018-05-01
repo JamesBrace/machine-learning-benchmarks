@@ -117,7 +117,7 @@ export class SqueezeNet {
 
     // Train the model.
     async train(set, set_size = BATCH_SIZE, train_steps = TRAIN_STEPS) {
-        await this.model.fit(set.images.reshape([set_size, IMAGE_SIZE, IMAGE_SIZE, IMAGE_DEPTH]),
+        await this.model.fit(set.images.reshape([-1, IMAGE_SIZE, IMAGE_SIZE, IMAGE_DEPTH]),
                 set.labels, {batchSize: BATCH_SIZE, epochs: train_steps});
         await tf.nextFrame();
 
@@ -125,7 +125,7 @@ export class SqueezeNet {
 
     // Predict the digit number from a batch of input images.
     async predict(batch, length){
-        await this.model.predict(batch.images.reshape([length , IMAGE_SIZE, IMAGE_SIZE, IMAGE_DEPTH]),
+        await this.model.predict(batch.images.reshape([-1 , IMAGE_SIZE, IMAGE_SIZE, IMAGE_DEPTH]),
             {batchSize: length});
     }
 
@@ -146,6 +146,8 @@ export class SqueezeNet {
         console.log(`Info: mapped data`);
 
         const shuffled = mapped.sort(() => .5 - Math.random());// shuffle
+        
+        console.log("Info: ", shuffled.length);
 
         console.log(`Info: shuffled data`);
 
