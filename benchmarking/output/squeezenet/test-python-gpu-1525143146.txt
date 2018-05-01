@@ -1,0 +1,5 @@
+{"test":0.16745877265930176,"backend":"gpu","implementation":"Python","test_size":1000,"benchmark":"SqueezeNet","train_size":1000,"train":0.2171792984008789,"training_steps":1}
+{"test_size":1000,"train_size":1000,"test":0.16822171211242676,"benchmark":"SqueezeNet","train":0.21973228454589844,"implementation":"Python","training_steps":1,"backend":"gpu"}
+{"train_size":1000,"backend":"gpu","implementation":"Python","training_steps":1,"test_size":1000,"train":0.21317720413208008,"benchmark":"SqueezeNet","test":0.16647958755493164}
+{"test":0.17009854316711426,"benchmark":"SqueezeNet","training_steps":1,"train":0.22063803672790527,"train_size":1000,"implementation":"Python","test_size":1000,"backend":"gpu"}
+{"test":0.17094874382019043,"implementation":"Python","train":0.21603083610534668,"test_size":1000,"backend":"gpu","benchmark":"SqueezeNet","train_size":1000,"training_steps":1}

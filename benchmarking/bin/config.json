@@ -1,5 +1,5 @@
 {
-  "firefox_path": "/usr/bin/firefox",
+  "firefox_path": "/home/alex/firefox/firefox-bin",
   "js_path": "javascript",
 
   "valid_environemnts": ["python", "chrome", "firefox"],

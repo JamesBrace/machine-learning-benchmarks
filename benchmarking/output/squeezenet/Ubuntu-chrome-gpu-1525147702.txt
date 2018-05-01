@@ -1,0 +1,2 @@
+{"benchmark":"SqueezeNet","backend":"gpu","implementation":"JavaScript","train":51602.200000023004,"test":12084.300000045914,"train_size":1001,"training_steps":1,"test_size":1001} 
+{"benchmark":"SqueezeNet","backend":"gpu","implementation":"JavaScript","train":51600.89999996126,"test":10683.699999994133,"train_size":1001,"training_steps":1,"test_size":1001} 

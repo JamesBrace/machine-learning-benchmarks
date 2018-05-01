@@ -126,7 +126,7 @@ export class SqueezeNet {
     // Predict the digit number from a batch of input images.
     async predict(batch, length){
         await this.model.predict(batch.images.reshape([TEST_SIZE -1  , IMAGE_SIZE, IMAGE_SIZE, IMAGE_DEPTH]),
-            {batchSize: length});
+            {batchSize: BATCH_SIZE});
     }
 
     /**
