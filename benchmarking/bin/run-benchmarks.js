@@ -8,15 +8,15 @@
 /**
  * Constants
  */
+const config = require('config');
 
-const valid_environments = ['python', 'chrome', 'firefox'];
-const valid_backends = ['gpu', 'cpu'];
-const default_iterations = 10;
+const valid_environments = config.valid_environemnts;
+const valid_backends = config.valid_backends;
+const default_iterations = config.default_iterations;
 
-const benchmark_dir = 'benchmarks';
-const impl_dir = 'implementations';
-const python_dir = 'python';
-const js_dir = 'javascript';
+const benchmark_dir = config.benchmark_dir;
+const python_dir = config.python_dir;
+const js_dir = config.js_dir;
 const current_dir = __dirname;
 const spawner_url = `${current_dir}/headless-browser-spawner.js`;
 const output_dir = `${current_dir}/../output`;
@@ -31,7 +31,6 @@ const benchmark_mapping = {
  */
 const execSync = require('child_process').execSync;
 
-
 /**
  * Chalk
  */
@@ -43,51 +42,13 @@ const log = console.log;
  */
 const ProgressBar = require('progress');
 
-
 /**
  * Arg Parser
  */
-const ArgumentParser = require('argparse').ArgumentParser;
-const parser = new ArgumentParser({
-  version: '1.0.0',
-  addHelp:true,
-  description: 'Benchmark spawner'
-});
+const ArgumentParser = require('arg-parser').ArgParser;
+let parser = new ArgumentParser('benchmarks');
+parser = parser.get_arg_parser();
 
-parser.addArgument(
-  [ '-t', '--test' ],
-  {
-    help: `The test you want to run. Current options are 'mnist', 'squeezenet', and 'utilities'. Defaults to all.`
-  }
-);
-
-parser.addArgument(
-  [ '-e', '--env' ],
-  {
-    help: `The environment you want to run in. Current options are 'python', 'chrome', and 'firefox'. Defaults to all.`
-  }
-);
-
-parser.addArgument(
-  [ '-i', '--iterations' ],
-  {
-    help: `The number of iterations you want to run. Defaults to ${default_iterations}`
-  }
-);
-
-parser.addArgument(
-  [ '-l', '--verbose'],
-  {
-    help: `Set to true if you want to turn on verbose mode. Defaults to 'false'`
-  }
-);
-
-parser.addArgument(
-  [ '-b', '--backend'],
-  {
-    help: `The backend you want to run the benchmarks on. Can either be 'cpu' or 'gpu'. Defaults to 'both'`
-  }
-);
 
 /**
  * CLI Logic
@@ -106,7 +67,7 @@ let backends = '';
  */
 const args = parser.parseArgs();
 
-// Set logging settings
+// Set backend settings
 if(args.backend){
     if (args.backend === 'cpu' || args.backend === 'gpu'){
         backends = [args.backend]
@@ -117,8 +78,6 @@ if(args.backend){
     backends = valid_backends
 }
 
-log(chalk.blue.bold('Backend: ') + chalk.blue(backends));
-
 // Set logging settings
 if(args.verbose){
     if (args.verbose === 'true' || args.verbose === 'false'){
@@ -128,11 +87,8 @@ if(args.verbose){
     }
 }
 
-log(chalk.blue.bold('Verbose: ') + chalk.blue(verbose));
-
 // Get tests
 const tests = args.test;
-
 if(tests){
     if(Object.keys(benchmark_mapping).includes(tests)){
         tests_performing = [tests];
@@ -142,8 +98,6 @@ if(tests){
 } else {
     tests_performing = Object.keys(benchmark_mapping);
 }
-
-log(chalk.blue.bold('Benchmarks: ') + chalk.blue(tests_performing));
 
 // Get environments
 const envs = args.env;
@@ -157,11 +111,8 @@ if(envs){
     envs_running = valid_environments
 }
 
-log(chalk.blue.bold('Environments: ') + chalk.blue(envs_running));
-
 // Get iterations
 const iters = args.iterations;
-
 if(iters) {
     if(parseInt(iters)){
         iterations = parseInt(iters)
@@ -172,18 +123,29 @@ if(iters) {
     iterations = default_iterations
 }
 
+// Get platform
+const platform = args.platform;
+if(!platform) throw_error(`Platform not specified`);
+
+/**
+ * Print out configuration to user
+ */
+log(chalk.blue.bold('Benchmarks: ') + chalk.blue(tests_performing));
+log(chalk.blue.bold('Environments: ') + chalk.blue(envs_running));
+log(chalk.blue.bold('Backends: ') + chalk.blue(backends));
 log(chalk.blue.bold('Iterations: ') + chalk.blue(iterations));
+log(chalk.blue.bold('Verbose: ') + chalk.blue(verbose));
+
 
 /**
  * Now that we have the inputs, time to run stuff!
  */
-
 print_lines(1);
 
 const total = new ProgressBar('  Total percentage completed [:bar] :percent :etas \n', {
             complete: '=',
             incomplete: ' ',
-            width: 50,
+            width: 30,
             total: iterations * tests_performing.length * envs_running.length * backends.length
         });
 
@@ -195,31 +157,19 @@ tests_performing.forEach(benchmark => {
 
         log(chalk.blue.bgYellow(`Running in environment: ${environ}`));
 
-        const bar = new ProgressBar(`  ${environ} benchmarks completed [:bar] :current/${iterations} :percent :etas \n`, {
-            complete: '=',
-            incomplete: ' ',
-            width: 20,
-            total: iterations
-        });
-
-        bar.render();
-
         backends.forEach(backend => {
 
             log(chalk.bgMagenta(`Running with backend: ${backend}`));
 
             // The name of the file to have results outputted to
-            const output_file = `${output_dir}/${benchmark}/${environ}-${backend}-${Math.floor(Date.now() / 1000)}.txt`;
+            const output_file = `${output_dir}/${benchmark}/${platform}-${environ}-${backend}-${Math.floor(Date.now() / 1000)}.txt`;
 
             for(let x = 0; x < iterations; x++) {
                 run_benchmark(benchmark, environ, output_file, backend);
-                bar.tick();
-                bar.render();
                 total.tick();
                 total.render()
             }
         });
-
 
         log(chalk.green(`Benchmarking in ${environ} completed.`))
     });
@@ -261,7 +211,7 @@ function run_benchmark(benchmark, env, output_file, backend){
  * @param output_file
  */
 function run_benchmark_in_python(benchmark, backend, output_file) {
-    const runner = `python3 ${current_dir}/../${benchmark_mapping[benchmark]}/${impl_dir}/${python_dir}/runner.py --backend ${backend} --output ${output_file}`;
+    const runner = `python3 ${current_dir}/../${benchmark_mapping[benchmark]}/${python_dir}/runner.py --backend ${backend} --output ${output_file}`;
     run_cmd(runner)
 }
 
@@ -288,7 +238,7 @@ function prep_environment(env, benchmark){
     log(chalk.blue("Prepping environment..."));
 
     const current_dir = __dirname;
-    const builder = `cd ${current_dir}/../${benchmark_mapping[benchmark]}/${impl_dir}/${js_dir} && yarn test`;
+    const builder = `cd ${current_dir}/../${benchmark_mapping[benchmark]}/${js_dir} && yarn test`;
     run_cmd(builder);
 
     log(chalk.blue("Finish prepping environment"));
@@ -299,7 +249,6 @@ function prep_environment(env, benchmark){
  * @param cmd
  */
 function run_cmd(cmd) {
-
     const out = (verbose) ? {stdio:[0,1,2]} : null;
 
     try {

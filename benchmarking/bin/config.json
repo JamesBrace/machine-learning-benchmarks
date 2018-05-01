@@ -1,0 +1,11 @@
+{
+  "firefox_path": "/usr/bin/firefox",
+  "js_path": "javascript",
+
+  "valid_environemnts": ["python", "chrome", "firefox"],
+  "valid_backends": ["gpu", "cpu"],
+  "default_iterations": 30,
+  "benchmark_dir": "benchmarks",
+  "python_dir": "python",
+  "js_dir": "javascript"
+}

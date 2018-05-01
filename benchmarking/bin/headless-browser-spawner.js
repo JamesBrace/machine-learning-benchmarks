@@ -1,50 +1,18 @@
-// Look at david's paper to evaluate how many iterations one should
 const fs = require('fs');
+const arg_parser = require('arg-parser');
+const config = require('config');
+require('geckodriver');
+const {Builder, By, until} = require('selenium-webdriver');
+const path = require('path');
+const firefox = require('selenium-webdriver/firefox');
+const puppeteer = require('puppeteer');
 
 /**
  * Arg Parser
  */
-const ArgumentParser = require('argparse').ArgumentParser;
-console.log(ArgumentParser);
-const parser = new ArgumentParser({
-  version: '0.0.1',
-  addHelp:true,
-  description: 'Headless Browser Spawner'
-});
-
-parser.addArgument(
-  [ '-t', '--test' ],
-  {
-    help: `The test you want to run. Current options are 'mnist', 'squeeznet', and 'utilities'`
-  }
-);
-
-parser.addArgument(
-  [ '-b', '--browser' ],
-  {
-    help: `The browser you want to run the test in. Current options are 'firefox' and 'chrome'. Default is both.`
-  }
-);
-
-parser.addArgument(
-  [ '-be', '--backend' ],
-  {
-    help: `The backend you want to run the test in. Current options are 'cpu' and 'gpu'. Default is both.`
-  }
-);
-
-
-parser.addArgument(
-  [ '-o', '--output' ],
-  {
-    help: `The name of file you want to save output to.`
-  }
-);
-
+let parser = new arg_parser.ArgParser('browser-spawner');
+parser = parser.get_arg_parser();
 const args = parser.parseArgs();
-
-// The relative location of the output file
-// const file = `../output/${args.test}/${args.output}`;
 
 let backend;
 if (args.backend === 'gpu' || args.backend === 'cpu'){
@@ -56,39 +24,24 @@ if (args.backend === 'gpu' || args.backend === 'cpu'){
 /**
  * Firefox Headless Setup
  */
-require('geckodriver');
+const path_to_firefox = config.firefox_path;
 
-const {Builder, By, until} = require('selenium-webdriver');
-const path = require('path');
-const firefox = require('selenium-webdriver/firefox');
-// const path_to_firefox = "/home/bracejames95/firefox/firefox-bin";
-//const path_to_firefox = "/Applications/Firefox.app/Contents/MacOS/firefox-bin";
-
-const path_to_firefox = "/usr/bin/firefox";
 // The global path to output file which is used by the program
 const file_url = args.output;
 
 /**
- * Chrome Headless Setup
- */
-const puppeteer = require('puppeteer');
-
-
-/**
  * URL Mapping
  */
-const path_to_js = 'implementations/javascript';
+const path_to_js = config.js_path;
 const urls = {
     mnist: `../benchmarks/MNIST/${path_to_js}/index-${backend}.html`,
     squeezenet: `http://localhost:1337/${backend}`,
-    utilities: "sadasd"
 };
 
 /**
  * Valid Browsers
  * @type {string[]}
  */
-
 const browsers = {
     'chrome': load_and_capture_chrome,
     'firefox': load_and_capture_firefox
@@ -118,20 +71,17 @@ async function load_and_capture_chrome(url){
     const browser = await puppeteer.launch({
         headless: false,
         args: [
-            //'--headless',
             '--hide-scrollbars',
             '--mute-audio',
-            //'--use-gl'
-            // '--ignoreDefaultArgs',
-            // '--iodump'
-            // '--no-sandbox'
         ]
     });
+
     const page = await browser.newPage();
 
     page.on('console', msg => {
         msg.args().forEach(arg => {
             if(msg.text().includes("Info")) {
+
                 console.log(msg.text());
 
                 if(msg.text().includes("Done")){
@@ -156,7 +106,7 @@ async function load_and_capture_chrome(url){
     });
 
     await page.goto(url, {
-                timeout: 3000000
+                timeout: 30000000000
             });
 }
 
@@ -167,7 +117,6 @@ async function load_and_capture_chrome(url){
  */
 async function load_and_capture_firefox(url){
     const options = new firefox.Options();
-    //options.headless()
     options.setBinary(path_to_firefox);
 
     const driver = await new Builder()
@@ -177,7 +126,7 @@ async function load_and_capture_firefox(url){
 
     await driver.get(url);
 
-    let el = await driver.wait(until.alertIsPresent(), 1000000000);
+    let el = await driver.wait(until.alertIsPresent(), 1000000000000);
 
     const output = await el.getText();
 
