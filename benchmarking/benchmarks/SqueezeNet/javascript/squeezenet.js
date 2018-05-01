@@ -28,9 +28,11 @@ async function loadData(training_size, test_size) {
 
     const test = await cifar.test.get(test_size);
 
+    training.forEach(t => console.log(t.length));
+
     data = {
         train: {
-            images: training.map((obj) => obj.input),
+            images: training.filter((obj) => obj.input),
             labels: training.map((obj) => obj.output),
             num_images: training.length,
         },

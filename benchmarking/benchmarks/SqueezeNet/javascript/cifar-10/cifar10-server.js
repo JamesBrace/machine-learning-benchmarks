@@ -30,7 +30,6 @@ http.createServer(function (request, response) {
                 switch (_context.prev = _context.next) {
                     case 0:
 
-                        console.log(path);
 
                         jsonData = jsonData.length ? JSON.parse(jsonData) : jsonData;
 
@@ -91,7 +90,6 @@ http.createServer(function (request, response) {
                         data = _context.sent;
 
                     case 31:
-                        console.log("data", data);
                         data = JSON.stringify(data);
                         _context.next = 37;
                         break;
