@@ -98,6 +98,8 @@ class SqueezeNet:
         train_labels = train_labels.flatten()
         test_labels = test_labels.flatten()
 
+        self.train_images = self.train_images[:TRAIN_SIZE, :, :, :]
+        self.test_images = self.test_images[:TRAIN_SIZE, :, :, :]
         self.train_labels[np.arange(TRAIN_SIZE), train_labels] = 1
         self.test_labels[np.arange(TEST_SIZE), test_labels] = 1
 
