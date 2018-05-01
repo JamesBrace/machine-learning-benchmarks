@@ -153,8 +153,8 @@ export class SqueezeNet {
 
 
 
-        return {images: tf.tensor4d(data[type].images.slice(0, size-1)),
-            labels: tf.tensor4d(data[type].labels.slice(0, size-1))}
+        return {images: tf.tensor(data[type].images.slice(0, size-1)),
+            labels: tf.tensor(data[type].labels.slice(0, size-1))}
     }
 }
 
