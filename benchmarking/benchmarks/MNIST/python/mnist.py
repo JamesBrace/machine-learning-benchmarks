@@ -73,7 +73,6 @@ class MNIST:
 
     def train(self, train_steps=EPOCHS):
         with tf.device(self.device):
-            print(self.train_images[0].shape)
             self.model.fit(self.train_images, self.train_labels, batch_size=BATCH_SIZE, epochs=train_steps)
 
     def predict(self):

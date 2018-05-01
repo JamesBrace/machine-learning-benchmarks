@@ -1,6 +1,6 @@
 const fs = require('fs');
-const arg_parser = require('arg-parser');
-const config = require('config');
+const arg_parser = require('./arg-parser');
+const config = require('./config');
 require('geckodriver');
 const {Builder, By, until} = require('selenium-webdriver');
 const path = require('path');
