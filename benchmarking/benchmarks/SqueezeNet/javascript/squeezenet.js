@@ -26,6 +26,8 @@ async function loadData(training_size, test_size) {
 
     const training = await cifar.training.get(training_size);
 
+    console.log(training);
+
     const test = await cifar.test.get(test_size);
 
     training.forEach(t => console.log(t.length));
