@@ -16,8 +16,8 @@ const EPOCHS = 1;
 const IMAGE_SIZE = 28;
 const IMAGE_DEPTH = 1;
 const LABELS_SIZE = 10;
-const TRAIN_SIZE = 50000;
-const TEST_SIZE = 10000;
+const TRAIN_SIZE = 1000;
+const TEST_SIZE = 1000;
 
 export class MNIST {
 

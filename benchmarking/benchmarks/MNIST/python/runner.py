@@ -27,8 +27,8 @@ CONSTANTS
 """""""""
 WARMUP_STEPS = 1
 EPOCHS = 1
-TRAIN_SIZE = 50000
-TEST_SIZE = 10000
+TRAIN_SIZE = 1000
+TEST_SIZE = 1000
 
 
 def runner(params):
@@ -37,7 +37,7 @@ def runner(params):
 
     print("Info: Initializing model")
 
-    benchmark = mnist.init(backend, batch_size=64, train_size=TRAIN_SIZE, test_size=TEST_SIZE)
+    benchmark = mnist.init(backend)
 
     if backend == 'gpu':
         print("Info: Warming up GPU")

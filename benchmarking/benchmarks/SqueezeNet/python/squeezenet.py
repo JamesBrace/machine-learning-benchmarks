@@ -9,10 +9,10 @@ import numpy as np
 """""""""
 CONSTANTS
 """""""""
-TRAIN_SIZE = 50000
-TEST_SIZE = 10000
+TRAIN_SIZE = 1000
+TEST_SIZE = 1000
 BATCH_SIZE = 64
-TRAIN_STEPS = 1
+EPOCHS = 1
 
 sq1x1 = "squeeze1x1"
 exp1x1 = "expand1x1"
@@ -101,7 +101,7 @@ class SqueezeNet:
         self.train_labels[np.arange(TRAIN_SIZE), train_labels] = 1
         self.test_labels[np.arange(TEST_SIZE), test_labels] = 1
 
-    def train(self, train_steps=TRAIN_STEPS):
+    def train(self, train_steps=EPOCHS):
         with tf.device(self.device):
             self.model.fit(self.train_images, self.train_labels, batch_size=BATCH_SIZE, epochs=train_steps)
 

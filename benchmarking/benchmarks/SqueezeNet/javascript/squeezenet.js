@@ -7,10 +7,10 @@ import {CIFAR10} from "./cifar-10/cifar10-client";
 // Hyper-parameters
 const LEARNING_RATE = .001;
 const BATCH_SIZE = 64;
-const TRAIN_STEPS = 100;
+const TRAIN_STEPS = 1;
 
 // Data constants
-const TRAINING_SIZE = 2000;
+const TRAINING_SIZE = 1000;
 const TEST_SIZE = 1000;
 const IMAGE_SIZE = 32;
 const IMAGE_DEPTH = 3;
