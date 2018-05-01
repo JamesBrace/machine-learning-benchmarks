@@ -146,7 +146,7 @@ export class SqueezeNet {
         console.log(`Info: mapped data`);
 
         const shuffled = mapped.sort(() => .5 - Math.random());// shuffle
-        
+
         console.log("Info: ", shuffled.length);
 
         console.log(`Info: shuffled data`);

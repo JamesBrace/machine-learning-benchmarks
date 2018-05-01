@@ -81,7 +81,7 @@ export async function runner (backend){
 function log_output(output){
 
     if(!isFirefox){
-        console.log(`Info: Logging to file  ${text}`);
+        console.log(`Info: Logging to file  ${output}`);
         console.log(output);
         console.log("Info: Done");
     } else {
