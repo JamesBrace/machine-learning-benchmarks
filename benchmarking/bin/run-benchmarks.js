@@ -8,7 +8,7 @@
 /**
  * Constants
  */
-const config = require('config');
+const config = require('./config.json');
 
 const valid_environments = config.valid_environemnts;
 const valid_backends = config.valid_backends;
@@ -45,8 +45,8 @@ const ProgressBar = require('progress');
 /**
  * Arg Parser
  */
-const ArgumentParser = require('arg-parser').ArgParser;
-let parser = new ArgumentParser('benchmarks');
+const ArgParser = require('./arg-parser');
+let parser = new ArgParser('benchmarks');
 parser = parser.get_arg_parser();
 
 
@@ -66,6 +66,8 @@ let backends = '';
  * Validate input
  */
 const args = parser.parseArgs();
+
+console.log(args);
 
 // Set backend settings
 if(args.backend){
@@ -126,6 +128,7 @@ if(iters) {
 // Get platform
 const platform = args.platform;
 if(!platform) throw_error(`Platform not specified`);
+
 
 /**
  * Print out configuration to user

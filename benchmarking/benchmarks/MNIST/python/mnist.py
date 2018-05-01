@@ -7,13 +7,14 @@ from keras import optimizers
 from keras.models import Model
 
 import tensorflow as tf
+import numpy as np
 import dataset
 
 """""""""""
 DEFAULTS
 """""""""""
-TRAIN_SIZE = 1000
-TEST_SIZE = 1000
+TRAIN_SIZE = 10000
+TEST_SIZE = 10000
 LEARNING_RATE = .001
 BATCH_SIZE = 64
 IMAGE_SIZE = 28
@@ -28,10 +29,10 @@ class MNIST:
         self.test_data = dataset.test("/tmp/mnist_data")
         self.backend = backend
 
-        self.train_images = self.train_data['images'][:TRAIN_SIZE]
+        self.train_images = np.reshape(self.train_data['images'][:TRAIN_SIZE], (-1, IMAGE_SIZE, IMAGE_SIZE, IMAGE_DEPTH))
         self.train_labels = self.train_data['labels'][:TRAIN_SIZE]
 
-        self.test_images = self.test_data['images'][:TRAIN_SIZE]
+        self.test_images = np.reshape(self.test_data['images'][:TRAIN_SIZE], (-1, IMAGE_SIZE, IMAGE_SIZE, IMAGE_DEPTH))
         self.test_labels = self.test_data['labels'][:TRAIN_SIZE]
 
         if backend == 'gpu':
@@ -40,11 +41,13 @@ class MNIST:
             assert backend == 'cpu', 'Invalid backend specified: %s' % backend
             self.device = "/cpu:0"
 
+        print("Creating model")
+
         self.model = MNIST.create_model()
 
     @staticmethod
-    def create_model(input_shape=(IMAGE_SIZE, IMAGE_SIZE, IMAGE_DEPTH)):
-        img_input = Input(shape=input_shape)
+    def create_model():
+        img_input = Input(shape=(IMAGE_SIZE, IMAGE_SIZE, IMAGE_DEPTH))
 
         x = Convolution2D(32, (5, 5), strides=(1, 1), padding='same', name='conv1')(img_input)
         x = Activation('relu', name='relu_conv1')(x)
@@ -54,22 +57,23 @@ class MNIST:
         x = Activation('relu', name='relu_conv2')(x)
         x = MaxPooling2D(pool_size=(2, 2), strides=(2, 2), name='pool2')(x)
 
-        x = Reshape([-1, 7 * 7 * 64])(x)
-        x = Dense(1024)(x)
-        x = Activation('relu', name='relu_conv1')(x)
-        x = Dropout(0.4)(x)
-        x = Dense(10)(x)
+        x = Reshape((7 * 7 * 64, ))(x)
+        x = Dense(1024, name='dense_1')(x)
+        x = Activation('relu', name='relu_conv3')(x)
+        x = Dropout(0.4, name='dropout')(x)
+        x = Dense(10, name='dense_2')(x)
 
         inputs = img_input
 
-        model = Model(inputs, x, name='squeezenet')
+        model = Model(inputs, x, name='mnist')
 
         optimizer = optimizers.adam(lr=0.001)
-        model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
+        model.compile(optimizer=optimizer, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
         return model
 
     def train(self, train_steps=EPOCHS):
         with tf.device(self.device):
+            print(self.train_images[0].shape)
             self.model.fit(self.train_images, self.train_labels, batch_size=BATCH_SIZE, epochs=train_steps)
 
     def predict(self):

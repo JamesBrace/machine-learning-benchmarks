@@ -1,7 +1,7 @@
 const ArgumentParser = require('argparse').ArgumentParser;
-const config = require('config');
+const config = require('./config.json');
 
-export class ArgParser {
+class ArgParser {
 
     constructor(type){
         this.parser = new ArgumentParser({
@@ -92,3 +92,5 @@ export class ArgParser {
         return this.parser;
     }
 }
+
+module.exports = ArgParser;
