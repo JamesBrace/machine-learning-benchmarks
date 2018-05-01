@@ -1,5 +1,5 @@
 const fs = require('fs');
-const arg_parser = require('./arg-parser');
+const ArgParser = require('./arg-parser');
 const config = require('./config');
 require('geckodriver');
 const {Builder, By, until} = require('selenium-webdriver');
@@ -10,7 +10,7 @@ const puppeteer = require('puppeteer');
 /**
  * Arg Parser
  */
-let parser = new arg_parser.ArgParser('browser-spawner');
+let parser = new ArgParser('browser-spawner');
 parser = parser.get_arg_parser();
 const args = parser.parseArgs();
 
