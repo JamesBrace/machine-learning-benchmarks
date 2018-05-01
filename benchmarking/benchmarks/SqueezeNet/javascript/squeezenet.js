@@ -152,9 +152,8 @@ export class SqueezeNet {
         // console.log(`Info: shuffled data`);
 
 
-
-        return {images: tf.tensor(data[type].images.slice(0, size-1)),
-            labels: tf.tensor(data[type].labels.slice(0, size-1))}
+        return {images: tf.tensor(data[type].images),
+            labels: tf.tensor(data[type].labels)}
     }
 }
 
