@@ -99,9 +99,9 @@ class SqueezeNet:
         test_labels = test_labels.flatten()
 
         self.train_images = self.train_images[:TRAIN_SIZE, :, :, :]
-        self.test_images = self.test_images[:TRAIN_SIZE, :, :, :]
-        self.train_labels[np.arange(TRAIN_SIZE), train_labels] = 1
-        self.test_labels[np.arange(TEST_SIZE), test_labels] = 1
+        self.test_images = self.test_images[:TEST_SIZE, :, :, :]
+        self.train_labels[np.arange(TRAIN_SIZE), train_labels[:TRAIN_SIZE]] = 1
+        self.test_labels[np.arange(TEST_SIZE), test_labels[:TEST_SIZE]] = 1
 
     def train(self, train_steps=EPOCHS):
         with tf.device(self.device):
