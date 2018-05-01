@@ -25,16 +25,12 @@ async function loadData(training_size, test_size) {
     const cifar = new CIFAR10();
 
     const training = await cifar.training.get(training_size);
-
-    console.log(training);
-
+    
     const test = await cifar.test.get(test_size);
-
-    training.forEach(t => console.log(t.length));
 
     data = {
         train: {
-            images: training.filter((obj) => obj.input),
+            images: training.map((obj) => obj.input),
             labels: training.map((obj) => obj.output),
             num_images: training.length,
         },
@@ -121,7 +117,7 @@ export class SqueezeNet {
 
     // Train the model.
     async train(set, set_size = BATCH_SIZE, train_steps = TRAIN_STEPS) {
-        await this.model.fit(set.images.reshape([-1, IMAGE_SIZE, IMAGE_SIZE, IMAGE_DEPTH]),
+        await this.model.fit(set.images.reshape([TRAINING_SIZE -1 , IMAGE_SIZE, IMAGE_SIZE, IMAGE_DEPTH]),
                 set.labels, {batchSize: BATCH_SIZE, epochs: train_steps});
         await tf.nextFrame();
 
@@ -129,7 +125,7 @@ export class SqueezeNet {
 
     // Predict the digit number from a batch of input images.
     async predict(batch, length){
-        await this.model.predict(batch.images.reshape([-1 , IMAGE_SIZE, IMAGE_SIZE, IMAGE_DEPTH]),
+        await this.model.predict(batch.images.reshape([TEST_SIZE -1  , IMAGE_SIZE, IMAGE_SIZE, IMAGE_DEPTH]),
             {batchSize: length});
     }
 
