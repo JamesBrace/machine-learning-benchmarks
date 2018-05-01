@@ -10,8 +10,8 @@ const BATCH_SIZE = 64;
 const TRAIN_STEPS = 1;
 
 // Data constants
-const TRAINING_SIZE = 1000;
-const TEST_SIZE = 1000;
+const TRAINING_SIZE = 1001;
+const TEST_SIZE = 1001;
 const IMAGE_SIZE = 32;
 const IMAGE_DEPTH = 3;
 
@@ -151,8 +151,8 @@ export class SqueezeNet {
 
         console.log(`Info: shuffled data`);
 
-        return {images: tf.tensor(shuffled.map((obj) => obj.img).slice(0, size)),
-            labels: tf.tensor(shuffled.map((obj) => obj.label).slice(0, size))}
+        return {images: tf.tensor(shuffled.map((obj) => obj.img).slice(0, size-1)),
+            labels: tf.tensor(shuffled.map((obj) => obj.label).slice(0, size-1))}
     }
 }
 

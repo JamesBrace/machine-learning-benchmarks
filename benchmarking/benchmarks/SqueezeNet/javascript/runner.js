@@ -10,8 +10,8 @@ let isFirefox = false;
 /**
  * Constants
  */
-const TRAIN_SIZE = 1000;
-const TEST_SIZE = 1000;
+const TRAIN_SIZE = 1001;
+const TEST_SIZE = 1001;
 const TRAIN_EPOCHS = 1;
 const WARMUP_EPOCHS = 1;
 
