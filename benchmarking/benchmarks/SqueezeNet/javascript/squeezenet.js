@@ -137,22 +137,22 @@ export class SqueezeNet {
 
         console.log(`Info: Getting ${type} of size ${size}`);
 
-        let mapped = data[type].images.map((img, index) => {
-                return {img: img, label: data[type].labels[index]}
-            });
+        // let mapped = data[type].images.map((img, index) => {
+        //         return {img: img, label: data[type].labels[index]}
+        //     });
+        //
+        // console.log("Info: ", mapped);
+        //
+        // console.log(`Info: mapped data`);
 
-        console.log("Info: ", mapped);
+        // const shuffled = mapped.sort(() => .5 - Math.random());// shuffle
 
-        console.log(`Info: mapped data`);
+        // console.log("Info: ", shuffled.length);
+        //
+        // console.log(`Info: shuffled data`);
 
-        const shuffled = mapped.sort(() => .5 - Math.random());// shuffle
-
-        console.log("Info: ", shuffled.length);
-
-        console.log(`Info: shuffled data`);
-
-        return {images: tf.tensor(shuffled.map((obj) => obj.img).slice(0, size-1)),
-            labels: tf.tensor(shuffled.map((obj) => obj.label).slice(0, size-1))}
+        return {images: tf.tensor(data[type].images.slice(0, size-1)),
+            labels: tf.tensor(data[type].labels.slice(0, size-1))}
     }
 }
 
