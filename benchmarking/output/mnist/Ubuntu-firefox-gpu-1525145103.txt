@@ -1,0 +1,10 @@
+{"benchmark":"MNIST","backend":"gpu","implementation":"JavaScript","train":41270,"test":1524} 
+{"benchmark":"MNIST","backend":"gpu","implementation":"JavaScript","train":41392,"test":1508} 
+{"benchmark":"MNIST","backend":"gpu","implementation":"JavaScript","train":41334,"test":1530} 
+{"benchmark":"MNIST","backend":"gpu","implementation":"JavaScript","train":41444,"test":1524} 
+{"benchmark":"MNIST","backend":"gpu","implementation":"JavaScript","train":41472,"test":1504} 
+{"benchmark":"MNIST","backend":"gpu","implementation":"JavaScript","train":41514,"test":1506} 
+{"benchmark":"MNIST","backend":"gpu","implementation":"JavaScript","train":41288,"test":1516} 
+{"benchmark":"MNIST","backend":"gpu","implementation":"JavaScript","train":41348,"test":1504} 
+{"benchmark":"MNIST","backend":"gpu","implementation":"JavaScript","train":41494,"test":1512} 
+{"benchmark":"MNIST","backend":"gpu","implementation":"JavaScript","train":41270,"test":1518} 
