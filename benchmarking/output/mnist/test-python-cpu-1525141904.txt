@@ -1,1 +1,0 @@
-{"benchmark":"MNIST","backend":"cpu","implementation":"Python","train":4.350834131240845,"test":0.7352099418640137,"train_size":1000,"training_steps":1,"test_size":1000}
