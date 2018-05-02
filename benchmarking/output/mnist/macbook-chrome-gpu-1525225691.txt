@@ -1,0 +1,10 @@
+{"benchmark":"MNIST","backend":"gpu","implementation":"JavaScript","train":29536.499999987427,"test":6197.199999995064} 
+{"benchmark":"MNIST","backend":"gpu","implementation":"JavaScript","train":29560.70000003092,"test":6165.399999998044} 
+{"benchmark":"MNIST","backend":"gpu","implementation":"JavaScript","train":29784.09999998985,"test":6173.39999997057} 
+{"benchmark":"MNIST","backend":"gpu","implementation":"JavaScript","train":29508.399999991525,"test":6189.599999983329} 
+{"benchmark":"MNIST","backend":"gpu","implementation":"JavaScript","train":28838.499999954365,"test":6020.699999993667} 
+{"benchmark":"MNIST","backend":"gpu","implementation":"JavaScript","train":28782.600000035018,"test":6004.799999995157} 
+{"benchmark":"MNIST","backend":"gpu","implementation":"JavaScript","train":28727.899999998044,"test":5999.699999985751} 
+{"benchmark":"MNIST","backend":"gpu","implementation":"JavaScript","train":29553.799999994226,"test":6157.400000025518} 
+{"benchmark":"MNIST","backend":"gpu","implementation":"JavaScript","train":29200.50000003539,"test":6039.400000008754} 
+{"benchmark":"MNIST","backend":"gpu","implementation":"JavaScript","train":29326.30000001518,"test":6195.6999999820255} 

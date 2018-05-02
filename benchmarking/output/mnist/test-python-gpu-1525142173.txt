@@ -1,4 +1,0 @@
-{"backend":"gpu","test":0.3400728702545166,"benchmark":"MNIST","training_steps":1,"train":1.0236034393310547,"test_size":1000,"implementation":"Python","train_size":1000}
-{"train":1.0255565643310547,"test_size":1000,"training_steps":1,"test":0.34735536575317383,"implementation":"Python","train_size":1000,"benchmark":"MNIST","backend":"gpu"}
-{"training_steps":1,"train":1.023921251296997,"backend":"gpu","train_size":1000,"implementation":"Python","benchmark":"MNIST","test_size":1000,"test":0.3431844711303711}
-{"backend":"gpu","training_steps":1,"test":0.3425137996673584,"test_size":1000,"train":1.0282227993011475,"benchmark":"MNIST","implementation":"Python","train_size":1000}

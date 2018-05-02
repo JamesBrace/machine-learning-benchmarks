@@ -10,8 +10,8 @@ const BATCH_SIZE = 64;
 const TRAIN_STEPS = 1;
 
 // Data constants
-const TRAINING_SIZE = 1001;
-const TEST_SIZE = 1001;
+const TRAINING_SIZE = 1000;
+const TEST_SIZE = 1000;
 const IMAGE_SIZE = 32;
 const IMAGE_DEPTH = 3;
 
@@ -117,15 +117,15 @@ export class SqueezeNet {
 
     // Train the model.
     async train(set, set_size = BATCH_SIZE, train_steps = TRAIN_STEPS) {
-        await this.model.fit(set.images.reshape([TRAINING_SIZE -1 , IMAGE_SIZE, IMAGE_SIZE, IMAGE_DEPTH]),
+        await this.model.fit(set.images.reshape([TRAINING_SIZE, IMAGE_SIZE, IMAGE_SIZE, IMAGE_DEPTH]),
                 set.labels, {batchSize: BATCH_SIZE, epochs: train_steps});
         await tf.nextFrame();
 
     }
 
     // Predict the digit number from a batch of input images.
-    async predict(batch, length){
-        await this.model.predict(batch.images.reshape([TEST_SIZE -1  , IMAGE_SIZE, IMAGE_SIZE, IMAGE_DEPTH]),
+    async predict(batch){
+        await this.model.predict(batch.images.reshape([TEST_SIZE , IMAGE_SIZE, IMAGE_SIZE, IMAGE_DEPTH]),
             {batchSize: BATCH_SIZE});
     }
 
@@ -135,23 +135,15 @@ export class SqueezeNet {
      */
     nextBatch(type, size = BATCH_SIZE){
 
+        data[type].images.forEach((img, index) => {
+            if (img.length < 3072) {
+                let temp = new Array(3072);
+                temp = temp.fill(0);
+                data[type].images[index] = temp
+            }
+        });
+
         console.log(`Info: Getting ${type} of size ${size}`);
-
-        // let mapped = data[type].images.map((img, index) => {
-        //         return {img: img, label: data[type].labels[index]}
-        //     });
-        //
-        // console.log("Info: ", mapped);
-        //
-        // console.log(`Info: mapped data`);
-
-        // const shuffled = mapped.sort(() => .5 - Math.random());// shuffle
-
-        // console.log("Info: ", shuffled.length);
-        //
-        // console.log(`Info: shuffled data`);
-
-
         return {images: tf.tensor(data[type].images),
             labels: tf.tensor(data[type].labels)}
     }
