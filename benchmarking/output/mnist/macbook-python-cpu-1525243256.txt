@@ -1,0 +1,10 @@
+{"benchmark":"MNIST","backend":"cpu","implementation":"Python","train":26.99051785469055,"test":7.1305999755859375,"train_size":1000,"training_steps":1,"test_size":1000}
+{"benchmark":"MNIST","backend":"cpu","implementation":"Python","train":26.977593898773193,"test":7.161781072616577,"train_size":1000,"training_steps":1,"test_size":1000}
+{"benchmark":"MNIST","backend":"cpu","implementation":"Python","train":27.07835292816162,"test":7.008835792541504,"train_size":1000,"training_steps":1,"test_size":1000}
+{"benchmark":"MNIST","backend":"cpu","implementation":"Python","train":26.968013763427734,"test":7.026052951812744,"train_size":1000,"training_steps":1,"test_size":1000}
+{"benchmark":"MNIST","backend":"cpu","implementation":"Python","train":27.036752223968506,"test":6.950850963592529,"train_size":1000,"training_steps":1,"test_size":1000}
+{"benchmark":"MNIST","backend":"cpu","implementation":"Python","train":26.996575117111206,"test":7.084626197814941,"train_size":1000,"training_steps":1,"test_size":1000}
+{"benchmark":"MNIST","backend":"cpu","implementation":"Python","train":27.260135889053345,"test":7.072344064712524,"train_size":1000,"training_steps":1,"test_size":1000}
+{"benchmark":"MNIST","backend":"cpu","implementation":"Python","train":27.205960273742676,"test":7.265143156051636,"train_size":1000,"training_steps":1,"test_size":1000}
+{"benchmark":"MNIST","backend":"cpu","implementation":"Python","train":27.01352596282959,"test":7.01569938659668,"train_size":1000,"training_steps":1,"test_size":1000}
+{"benchmark":"MNIST","backend":"cpu","implementation":"Python","train":27.04499077796936,"test":6.9549126625061035,"train_size":1000,"training_steps":1,"test_size":1000}
